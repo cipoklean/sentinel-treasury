@@ -59,6 +59,9 @@
   "proofTxs": {
     "agentPaidInvoice1": "0x7bdd0aadd4e0485f59bd289ba7c0f0525c646655781790000cbbb07d9ae9e212",
     "agentRefusedInvoice3_overPerTxCap": "0x7ac3b2622e365471726365857e766fa65013c4b218edd75ea9d191829e703c73",
-    "agentOutOfScopeTransfer_chainRejected": "rejected at broadcast: window does not list recipient as allowed target"
+    "agentOutOfScopeTransfer_chainRejected": "rejected at broadcast: window does not list recipient as allowed target",
+    "agentRefusedInvoice2_mandateRequired": "0xbaee26ec6e71b0ced3987042aea205bed4c7b590ec209a98c71397a1848c9817",
+    "agentRefusedInvoice3_secondRefusal": "0xdaf06715c1751b7ae65c737100d09f18787c5e0a55469861c59bb10859b3c5a5",
+    "payWithMandate_pqcVerified_invoice2": "0xf8b9e372ac5ea069565a5bc021e85dc14e4b00f5347b43350b9c039e662b1567"
   }
 }

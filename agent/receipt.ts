@@ -23,7 +23,7 @@ export const DECISION_TYPES = {
 } as const;
 
 export async function signDecision(inv: Invoice, verdict: Verdict, timestamp: bigint) {
-  const signature = await agentAccount.signTypedData({
+  const signature = await agentAccount().signTypedData({
     domain: {
       name: "Sentinel",
       version: "1",
@@ -57,7 +57,7 @@ export async function signDecision(inv: Invoice, verdict: Verdict, timestamp: bi
         timestamp: timestamp.toString(),
       },
       signature,
-      signer: agentAccount.address,
+      signer: agentAccount().address,
     },
   };
 }

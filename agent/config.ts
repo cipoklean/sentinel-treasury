@@ -25,11 +25,19 @@ export const ADDRESSES = {
   operator: deployments.operator.evm as `0x${string}`,
 };
 
-const pk = process.env.PRIVATE_KEY?.trim();
-if (!pk || !/^0x[0-9a-fA-F]{64}$/.test(pk)) {
-  throw new Error("agent needs PRIVATE_KEY (0x + 64 hex) — its classical key only");
+let _agent: ReturnType<typeof privateKeyToAccount> | null = null;
+/** The agent's classical key — resolved lazily so importing config (e.g. from
+ *  the guardian) doesn't require PRIVATE_KEY in the environment. */
+export function agentAccount() {
+  if (!_agent) {
+    const pk = process.env.PRIVATE_KEY?.trim();
+    if (!pk || !/^0x[0-9a-fA-F]{64}$/.test(pk)) {
+      throw new Error("agent needs PRIVATE_KEY (0x + 64 hex) — its classical key only");
+    }
+    _agent = privateKeyToAccount(pk as `0x${string}`);
+  }
+  return _agent;
 }
-export const agentAccount = privateKeyToAccount(pk as `0x${string}`);
 
 export const REGISTRY_ABI = parseAbi([
   "function nextId() view returns (uint256)",

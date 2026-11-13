@@ -29,7 +29,7 @@ import { signDecision } from "./receipt.js";
 
 const net = getNetwork("testnet");
 const publicClient = createPublicClient({ chain: qoreDiana, transport: http() });
-const walletClient = createWalletClient({ account: agentAccount, chain: qoreDiana, transport: http() });
+const walletClient = createWalletClient({ account: agentAccount(), chain: qoreDiana, transport: http() });
 
 interface State {
   attempted: string[]; // invoice ids already sent to the vault once
@@ -163,7 +163,7 @@ async function poll() {
 
 async function windowLine(): Promise<string> {
   try {
-    const w = await evmWindowStatus({ rest: net.endpoints.rest, address: evmToQor(agentAccount.address) });
+    const w = await evmWindowStatus({ rest: net.endpoints.rest, address: evmToQor(agentAccount().address) });
     if (!w.found) return "window: none";
     return `window: ${w.live ? "live" : "expired"} ${w.remainingBlocks} blocks ${w.remainingTxs} txs ${w.remainingValue} uqor left`;
   } catch {
@@ -173,7 +173,7 @@ async function windowLine(): Promise<string> {
 
 async function main() {
   mkdirSync(MANDATES_DIR, { recursive: true });
-  console.log(`sentinel agent ${agentAccount.address}`);
+  console.log(`sentinel agent ${agentAccount().address}`);
   console.log(`vault ${ADDRESSES.vault}  registry ${ADDRESSES.registry}`);
   for (;;) {
     try {
