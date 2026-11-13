@@ -100,8 +100,8 @@
       (c) You must retain, in the Source form of any Derivative Works
           that You distribute, all copyright, patent, trademark, and
           attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
+          excluding those notices that do not pertain to any part of the
+          Derivative Works; and
 
       (d) If the Work includes a "NOTICE" text file as part of its
           distribution, then any Derivative Works that You distribute must
@@ -159,12 +159,8 @@
       arising as a result of this License or out of the use or inability to
       use the Work, including but not limited to damages for loss of
       goodwill, work stoppage, computer failure or malfunction, or any and
-      all commercial damages or for any and all other damages, however
-      caused, including but not limited to lost profits), suffered by
-      such Contributor and on account of Your use, misuse of the Work
-      or inability to use the Work and despite all other damages caused
-      by any act, or omission on Your part, arising out of Your use, in
-      any way, of the Work.
+      all other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
 
    9. Accepting Warranty or Additional Liability. While redistributing
       the Work or Derivative Works thereof, You may choose to offer,
@@ -192,7 +188,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2026 Aghazie David (cipoklean)
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
