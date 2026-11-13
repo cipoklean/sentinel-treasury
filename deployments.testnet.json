@@ -1,0 +1,39 @@
+{
+  "network": "qorechain-diana",
+  "evmChainId": 9800,
+  "operator": {
+    "evm": "0x9488BAD757ab796638f5Ad4ae5d8bE333AE77e6C",
+    "cosmos": "qor1jjyt446h4dukvw84449wtk97xvawwlnvqa327s",
+    "pqcRegisterTx": "6092B826",
+    "evmWindowTx": "46E5304D"
+  },
+  "agent": {
+    "evm": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8",
+    "cosmos": "qor1h0xmfujyv8nmww35f5hlxe0mxgyqxvdgd9cvrk",
+    "pqcRegisterTx": "B78ACBBC5753BD3DC7E7A23F66FCBE19C4C0DAE8E844EB45D3C70D65B721C63B",
+    "fundTx": "D22DAB4098CC917F2FE832123302C2B95A90EDA9CC48C26F3D7592C7DFCCD8A0"
+  },
+  "contracts": {
+    "InvoiceRegistry": {
+      "address": "0x7CC179815f429E6cA53B0f56f2E0dF44b192B78D",
+      "deployTx": "0x944d505790fa0134c2b9c4e9b7dd5c7eb94a9424e32704b59ce6220d8944ced5"
+    },
+    "PolicyVault": {
+      "address": "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9",
+      "deployTx": "0x08b4306a185fb8b7cf6fe64fde6960783daec7e0d9401ab090dfc7f5e1e157fa",
+      "setVaultTx": "0x2ee2a17a5d974cdd3725117cc348e8a7a43971c8790394e4868fab5ca2387ccc",
+      "policy": {
+        "perTxCapWei": "5000000000000000000",
+        "dailyCapWei": "20000000000000000000",
+        "mandateThresholdWei": "2000000000000000000"
+      }
+    },
+    "CounterSmokeTest": {
+      "address": "0xa1db57eb0e7b51e351f32ef790fb966cc028d976"
+    }
+  },
+  "precompiles": {
+    "pqcVerify": "0x0000000000000000000000000000000000000a01",
+    "pqcKeyStatus": "0x0000000000000000000000000000000000000a02"
+  }
+}

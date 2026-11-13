@@ -1,8 +1,8 @@
 # Secrets — never commit
 .env
+.env.*
+!.env.example
 *.key
-.env.local
-.env.*.local
 
 # Node
 node_modules/
