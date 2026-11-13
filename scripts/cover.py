@@ -81,5 +81,7 @@ d.text((M + 210, y + 22), "0X0A01 PQCVERIFY", font=mono, fill=ACCENT)
 d.text((M + 540, y + 22), "WINDOW · ABSTRACT ACCT · VAULT", font=mono_sm, fill=MUTED)
 d.text((W - M - 300, y + 22), "cipoklean/sentinel-treasury", font=mono_sm, fill=MUTED)
 
-img.save(r"C:\Users\HomePC\sentinel\cover.png")
-print("wrote cover.png", img.size)
+import os
+out = os.path.join(os.path.dirname(__file__), "..", "cover.png")
+img.save(out)
+print("wrote", os.path.abspath(out), img.size)
