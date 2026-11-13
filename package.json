@@ -9,6 +9,9 @@
     "build": "forge build",
     "test": "forge test",
     "window": "tsx --env-file=.env scripts/window.ts",
+    "window:agent": "tsx --env-file=.env.agent scripts/window.ts",
+    "send": "tsx --env-file=.env scripts/send.ts",
+    "agent": "tsx --env-file=.env.agent.hot agent/index.ts",
     "deploy:testnet": "forge script script/Counter.s.sol --rpc-url qorechain_testnet --broadcast",
     "typecheck": "tsc --noEmit"
   },

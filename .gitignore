@@ -4,6 +4,9 @@
 !.env.example
 *.key
 
+# Runtime
+logs/
+
 # Node
 node_modules/
 dist/

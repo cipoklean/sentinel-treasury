@@ -11,7 +11,17 @@
     "evm": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8",
     "cosmos": "qor1h0xmfujyv8nmww35f5hlxe0mxgyqxvdgd9cvrk",
     "pqcRegisterTx": "B78ACBBC5753BD3DC7E7A23F66FCBE19C4C0DAE8E844EB45D3C70D65B721C63B",
-    "fundTx": "D22DAB4098CC917F2FE832123302C2B95A90EDA9CC48C26F3D7592C7DFCCD8A0"
+    "fundTx": "D22DAB4098CC917F2FE832123302C2B95A90EDA9CC48C26F3D7592C7DFCCD8A0",
+    "scopedWindowTx": "A6293E8A882E295054A751E7E21C3A3475FFBA6C3FD2FDDEEF026D4D3753655F",
+    "scopedWindow": {
+      "blocks": 17280,
+      "maxTxs": 20,
+      "maxValueUqor": 4000000,
+      "allowedTargets": [
+        "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9",
+        "0x7CC179815f429E6cA53B0f56f2E0dF44b192B78D"
+      ]
+    }
   },
   "contracts": {
     "InvoiceRegistry": {
@@ -35,5 +45,20 @@
   "precompiles": {
     "pqcVerify": "0x0000000000000000000000000000000000000a01",
     "pqcKeyStatus": "0x0000000000000000000000000000000000000a02"
+  },
+  "seedTxs": {
+    "operatorWindowTx": "65F85663B7543F192476700C3E4048E71220C69A07EFCDC61DFD0371627146A2",
+    "allowVendor": "0xc6ebad9848b54210ad00f48253d17664c46b4763d19f7dc44cb308ea838816a0",
+    "deposit8Qor": "0xbb607654868387cef9dfad610d947a57a2f4c34eb09507c492b83986f5653324",
+    "invoices": {
+      "1": { "ref": "INV-OFFICE-001", "amountQor": 1, "submitTx": "0xb519cce7a59c9a51e11553909529ab24ef7382f8f77381feeb80f57d9d882309" },
+      "2": { "ref": "INV-AUDIT-002", "amountQor": 3, "submitTx": "0x31d6f4a760451a0b383fa2e9e253124eaf04d4b2d6a0b16d2c1e05f75b8119e2" },
+      "3": { "ref": "INV-DATACENTER-003", "amountQor": 25, "submitTx": "0x7405b2b39e3d6c218f48f39106f2803c3afd51444b21cfe99a55451473a85aef" }
+    }
+  },
+  "proofTxs": {
+    "agentPaidInvoice1": "0x7bdd0aadd4e0485f59bd289ba7c0f0525c646655781790000cbbb07d9ae9e212",
+    "agentRefusedInvoice3_overPerTxCap": "0x7ac3b2622e365471726365857e766fa65013c4b218edd75ea9d191829e703c73",
+    "agentOutOfScopeTransfer_chainRejected": "rejected at broadcast: window does not list recipient as allowed target"
   }
 }

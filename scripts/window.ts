@@ -157,9 +157,20 @@ async function open(): Promise<void> {
   // (tools commonly set the cap near twice the 100 gwei base fee).
   const perTx = evmWindowCost({ gas: 3_000_000n, maxFeePerGas: 250_000_000_000n });
   const maxValue = BigInt(process.env.QORE_WINDOW_MAX_UQOR ?? (perTx * maxTxs).toString());
-  const msg = openEvmWindowMsg({ sender: acc.cosmos, blocks, maxTxs, maxValue });
+  // QORE_WINDOW_TARGETS="0x...,0x..." scopes the window to calls on those
+  // contracts only; contract creation and everything else is refused.
+  const allowedTargets = (process.env.QORE_WINDOW_TARGETS ?? "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const nativeOnly = process.env.QORE_WINDOW_NATIVE_ONLY === "1";
+  const msg = openEvmWindowMsg({ sender: acc.cosmos, blocks, maxTxs, maxValue, allowedTargets, nativeOnly });
   console.log(`opened: ${await broadcast(acc, "hybrid", [msg])}`);
-  console.log(`window: ${blocks} blocks, ${maxTxs} txs, ${maxValue} uqor (value plus fees)`);
+  console.log(
+    `window: ${blocks} blocks, ${maxTxs} txs, ${maxValue} uqor (value plus fees)` +
+      (allowedTargets.length ? `, targets: ${allowedTargets.join(", ")}` : ", unscoped") +
+      (nativeOnly ? ", native-only" : ""),
+  );
   console.log("Opening advanced the account's nonce; deploy now.");
 }
 
