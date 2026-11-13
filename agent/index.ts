@@ -25,6 +25,7 @@ import {
   MANDATES_DIR,
 } from "./config.js";
 import { decide, type Invoice, type Verdict } from "./policy.js";
+import { llmReview } from "./llm.js";
 import { signDecision } from "./receipt.js";
 
 const net = getNetwork("testnet");
@@ -105,20 +106,40 @@ async function poll() {
       args: [inv.vendor],
     })) as boolean;
 
-    const verdict: Verdict = decide(
+    const base: Verdict = decide(
       inv,
       { paused, vendorAllowed, perTxCap, dailyCap, mandateThreshold, spentToday, spentDay, mandateAvailable: !!mandate },
       nowDay,
     );
 
+    // Optional LLM review: may veto, never approve.
+    const llm = await llmReview(inv, {
+      paused,
+      vendorAllowed,
+      perTxCap,
+      dailyCap,
+      mandateThreshold,
+      spentToday,
+      spentDay,
+      mandateAvailable: !!mandate,
+    }, base);
+    const verdict: Verdict = llm?.vetoed
+      ? { action: "refuse", reason: `llm veto: ${llm.reason}` }
+      : base;
+
     const ts = BigInt(Math.floor(Date.now() / 1000));
     const { decisionRef, receipt } = await signDecision(inv, verdict, ts);
 
-    // The chain is the arbiter: submit once per invoice so the outcome lands
-    // on chain even when the agent already knows it will be refused.
+    // Submission rules:
+    // - policy-refused: still submit once so the refusal lands on chain
+    // - llm-vetoed: do NOT submit — the vault would simply pay it; the veto
+    //   is agent-side judgment and lives in the signed receipt only
+    // - approve: pay / payWithMandate
     let txHash: `0x${string}` | null = null;
     let outcome: string = "refused-offchain";
-    if (verdict.action === "payWithMandate" && mandate) {
+    if (llm?.vetoed) {
+      state.attempted.push(key);
+    } else if (verdict.action === "payWithMandate" && mandate) {
       txHash = await walletClient.writeContract({
         address: ADDRESSES.vault,
         abi: VAULT_ABI,
@@ -152,6 +173,7 @@ async function poll() {
       txHash,
       outcome,
       receipt,
+      llm,
     });
     console.log(`[invoice ${key}] ${verdict.action} (${verdict.reason}) -> ${outcome} ${txHash ?? ""}`);
     acted++;
