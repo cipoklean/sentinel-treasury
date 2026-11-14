@@ -138,7 +138,8 @@ async function cosmosTxMeta(hash: string) {
   try {
     const res = await fetch(`${REST}/cosmos/tx/v1beta1/txs/${hash}`, { signal: AbortSignal.timeout(8_000) });
     const tr = ((await res.json()) as any).tx_response;
-    const meta = tr ? { height: Number(tr.height), ts: Math.floor(Date.parse(tr.timestamp) / 1000) } : null;
+    if (!tr) return null;
+    const meta = { height: Number(tr.height), ts: Math.floor(Date.parse(tr.timestamp) / 1000) };
     cache.cosmosTx.set(hash, meta);
     return meta;
   } catch {
