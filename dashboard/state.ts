@@ -117,6 +117,7 @@ export interface ChainEvent {
   block: number;
   ts: number | null;
   tx: Hex;
+  evmTx?: Hex;
   logIndex: number;
   invoiceId?: string;
   amountQor?: string;
@@ -131,7 +132,43 @@ const cache = {
   blockTs: new Map<bigint, number>(),
   verified: new Map<string, boolean>(),
   cosmosTx: new Map<string, { height: number; ts: number } | null>(),
+  nativeTx: new Map<string, string | null>(),
 };
+
+// EVM txs ride inside MsgEthereumTx wrappers; the explorer indexes only the
+// native wrapper hash. Map via the wrapper's ethereum_tx.ethereumTxHash event,
+// one REST query per block.
+async function nativeTxsFor(items: { hash: string; block: number }[]) {
+  const byBlock = new Map<number, Set<string>>();
+  for (const { hash, block } of items) {
+    const k = hash.toLowerCase();
+    if (cache.nativeTx.has(k)) continue;
+    if (!byBlock.has(block)) byBlock.set(block, new Set());
+    byBlock.get(block)!.add(k);
+  }
+  await Promise.all(
+    [...byBlock].map(async ([block, wants]) => {
+      try {
+        const res = await fetch(`${REST}/cosmos/tx/v1beta1/txs?query=tx.height%3D${block}&pagination.limit=100`, {
+          signal: AbortSignal.timeout(8_000),
+        });
+        const j = (await res.json()) as any;
+        for (const tr of j.tx_responses ?? []) {
+          const attrs = (tr.events ?? [])
+            .filter((e: any) => e.type === "ethereum_tx")
+            .flatMap((e: any) => e.attributes ?? []);
+          const evm = attrs.find((a: any) => a.key === "ethereumTxHash")?.value?.toLowerCase();
+          if (evm && wants.has(evm)) cache.nativeTx.set(evm, tr.txhash as string);
+        }
+        for (const h of wants) if (!cache.nativeTx.has(h)) cache.nativeTx.set(h, null);
+      } catch {
+        // leave uncached — retried on the next request
+      }
+    }),
+  );
+}
+const nativeTx = (evmHash: string) => cache.nativeTx.get(evmHash.toLowerCase()) ?? null;
+const explorerTx = (hash: string) => (hash.startsWith("0x") ? (nativeTx(hash) ?? hash) : hash);
 
 async function cosmosTxMeta(hash: string) {
   if (cache.cosmosTx.has(hash)) return cache.cosmosTx.get(hash)!;
@@ -326,6 +363,15 @@ export async function getState() {
   }
   events.sort((a, b) => a.block - b.block || a.logIndex - b.logIndex);
 
+  await nativeTxsFor(events.filter((e) => e.tx.startsWith("0x")).map((e) => ({ hash: e.tx, block: e.block })));
+  for (const e of events) {
+    if (e.tx.startsWith("0x")) {
+      e.evmTx = e.tx;
+      const n = nativeTx(e.tx);
+      if (n) e.tx = n as Hex;
+    }
+  }
+
   const receipts = readReceipts();
   const verified = await Promise.all(receipts.map(verifyReceipt));
   const receiptByRef = new Map<string, StoredReceipt & { verified: boolean }>();
@@ -363,14 +409,16 @@ export async function getState() {
             ? receiptByRef.get(String(l.args.decisionRef).toLowerCase())
             : receiptByTx.get(String(l.transactionHash).toLowerCase());
         const decisionRef = l.eventName === "PaymentExecuted" ? (l.args.decisionRef as Hex) : (r?.decisionRef ?? null);
+        const x = explorerTx(ev.tx);
         return {
           outcome: l.eventName === "PaymentExecuted" ? "executed" : "refused",
           reason: l.eventName === "PaymentRefused" ? l.args.reason : l.args.withMandate ? "over threshold · operator mandate" : "within policy",
           withMandate: l.eventName === "PaymentExecuted" ? Boolean(l.args.withMandate) : false,
           block: ev.block,
           ts: ev.ts,
-          tx: ev.tx,
-          txUrl: `${EXPLORER}/tx/${ev.tx}`,
+          tx: x as Hex,
+          evmTx: ev.tx,
+          txUrl: `${EXPLORER}/tx/${x}`,
           rail: "evm · scoped window",
           decisionRef,
           decisionRefText: decisionRef ? bytes32Text(decisionRef) : null,

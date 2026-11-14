@@ -22,7 +22,45 @@ export const num = (n) => (n == null || !Number.isFinite(Number(n)) ? "–" : Nu
 export const uqorToQor = (u) => Number(u) / 1e6;
 
 export const txUrl = (h) => `${EXPLORER}/tx/${h}`;
-export const addrUrl = (a) => `${EXPLORER}/address/${a}`;
+
+// The explorer addresses accounts by bech32. Convert 0x EVM addresses to the
+// qor1 form (same 20 bytes, BIP-173 encoding).
+const B32 = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
+const B32_POLY = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+const b32polymod = (vals) => {
+  let c = 1;
+  for (const d of vals) {
+    const t = c >>> 25;
+    c = ((c & 0x1ffffff) << 5) ^ d;
+    for (let i = 0; i < 5; i++) if ((t >>> i) & 1) c ^= B32_POLY[i];
+  }
+  return c;
+};
+const convbits = (data, from, to) => {
+  let acc = 0,
+    bits = 0;
+  const out = [],
+    mask = (1 << to) - 1;
+  for (const x of data) {
+    acc = (acc << from) | x;
+    bits += from;
+    while (bits >= to) {
+      bits -= to;
+      out.push((acc >> bits) & mask);
+    }
+  }
+  if (bits) out.push((acc << (to - bits)) & mask);
+  return out;
+};
+const evmToQor = (a) => {
+  const bytes = [];
+  for (let i = 2; i < a.length; i += 2) bytes.push(parseInt(a.slice(i, i + 2), 16));
+  const data = convbits(bytes, 8, 5);
+  const hrp = [...`qor`].map((c) => c.charCodeAt(0));
+  const chk = b32polymod(hrp.map((c) => c >> 5).concat([0], hrp.map((c) => c & 31), data, [0, 0, 0, 0, 0, 0])) ^ 1;
+  return "qor1" + data.concat([25, 20, 15, 10, 5, 0].map((s) => (chk >> s) & 31)).map((d) => B32[d]).join("");
+};
+export const addrUrl = (a) => `${EXPLORER}/address/${typeof a === "string" && a.startsWith("0x") ? evmToQor(a) : a}`;
 
 export function ago(ts) {
   if (!ts) return "–";
