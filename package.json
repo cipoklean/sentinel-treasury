@@ -13,6 +13,7 @@
     "send": "tsx --env-file=.env scripts/send.ts",
     "agent": "tsx --env-file=.env.agent.hot agent/index.ts",
     "dashboard": "tsx dashboard/serve.ts",
+    "receipts:export": "tsx scripts/export-receipts.ts",
     "deploy:testnet": "forge script script/Counter.s.sol --rpc-url qorechain_testnet --broadcast",
     "typecheck": "tsc --noEmit"
   },

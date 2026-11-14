@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sentinel · Live treasury board</title>
+<meta name="description" content="Sentinel's live decision board, rebuilt from qorechain-diana event logs with signed EIP-712 receipts re-verified on every refresh." />
+<meta property="og:title" content="Sentinel · Live treasury board" />
+<meta property="og:image" content="/assets/og.png" />
+<meta name="theme-color" content="#F4EFE6" />
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/site.css" />
+<link rel="stylesheet" href="/assets/dashboard.css" />
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Sentinel home">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".6"/><circle cx="12" cy="12" r="3.4" fill="none" stroke="#B4490A" stroke-width="1.6"/><circle cx="12" cy="12" r="1.2" fill="#B4490A"/></svg>
+      SENTINEL<span class="dot">.</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="/">Overview</a>
+      <a href="/#drill">Q-Day drill</a>
+      <a href="/dashboard" aria-current="page">Board</a>
+      <span id="live" class="live-pill"><span class="live-dot"></span><span class="live-txt">connecting…</span><span class="net">&nbsp;· diana</span></span>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="dash-head">
+    <div>
+      <p class="eyebrow">Treasury board · qorechain-diana · EVM 9800</p>
+      <h1>Every decision, <em>anchored to chain.</em></h1>
+    </div>
+    <div class="prov" id="prov">rebuilding history from event logs…</div>
+  </section>
+
+  <div class="banner" id="banner" role="status"></div>
+
+  <section class="meters" aria-label="Budgets" aria-live="polite">
+    <div><div class="k">Window blocks</div><div class="v" id="m-blocks"><span class="skeleton"></span></div><div class="u" id="m-blocks-u">remaining in scope</div><div class="bar"><i id="b-blocks"></i></div></div>
+    <div><div class="k">Window txs</div><div class="v" id="m-txs"><span class="skeleton"></span></div><div class="u" id="m-txs-u">remaining</div><div class="bar"><i id="b-txs"></i></div></div>
+    <div><div class="k">Window value</div><div class="v" id="m-val"><span class="skeleton"></span></div><div class="u" id="m-val-u">QOR left</div><div class="bar"><i id="b-val"></i></div></div>
+    <div><div class="k">Vault balance</div><div class="v" id="m-bal"><span class="skeleton"></span></div><div class="u" id="m-bal-u">QOR held</div><div class="bar"><i id="b-bal"></i></div></div>
+    <div class="accent-v"><div class="k">Spent today</div><div class="v" id="m-spent"><span class="skeleton"></span></div><div class="u" id="m-spent-u">of daily cap</div><div class="bar acc"><i id="b-spent"></i></div></div>
+  </section>
+
+  <section class="board" aria-label="Invoice decisions">
+    <div class="board-bar">
+      <span class="board-title"><b>Decisions</b> · click a row for its full history</span>
+      <div class="filters" id="filters" role="group" aria-label="Filter by verdict">
+        <button aria-pressed="true" data-f="ALL">All</button>
+        <button aria-pressed="false" data-f="PAID">Paid</button>
+        <button aria-pressed="false" data-f="REFUSED">Refused</button>
+        <button aria-pressed="false" data-f="OPEN">Pending / vetoed</button>
+      </div>
+    </div>
+    <div class="b-head" aria-hidden="true"><span>Inv</span><span>Reference</span><span>Vendor</span><span style="text-align:right">Amount</span><span>Verdict</span><span>Proof</span><span></span></div>
+    <div id="rows"><div class="empty">loading chain state…</div></div>
+    <div class="board-foot"><span id="board-meta">–</span><span id="updated">–</span></div>
+  </section>
+
+  <section class="lower">
+    <div>
+      <div class="panel-h"><p class="eyebrow">Chain ledger</p><span class="mono muted" style="font-size:12px" id="ledger-n">–</span></div>
+      <ul class="ledger" id="ledger"></ul>
+    </div>
+    <div class="side">
+      <div class="panel-h"><p class="eyebrow">Policy · live reads</p></div>
+      <div id="policy"></div>
+      <svg class="rings" viewBox="0 0 520 520" role="img" aria-label="Three enforcement bounds">
+        <g data-layer="l0"><circle class="ring" cx="260" cy="260" r="222" stroke="#17140F" stroke-width="1.4"/><text class="lbl" x="260" y="30" text-anchor="middle">scoped evm window</text></g>
+        <g data-layer="l1"><circle class="ring" cx="260" cy="260" r="160" stroke="#17140F" stroke-opacity=".5" stroke-width="1.2"/><text class="lbl" x="260" y="92" text-anchor="middle">spending rules</text></g>
+        <g data-layer="l2"><circle class="ring" cx="260" cy="260" r="98" stroke="#B4490A" stroke-width="2"/><text class="lbl" x="260" y="154" text-anchor="middle" style="fill:#B4490A">policyvault</text></g>
+        <g><circle class="core" cx="260" cy="260" r="44"/><text class="core-t" x="260" y="256" text-anchor="middle">AGENT</text><text class="core-t" x="260" y="270" text-anchor="middle">KEY</text></g>
+      </svg>
+      <p class="cap"><a href="/#bounds">how the bounds work →</a></p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot" style="margin-top:72px">
+  <div class="wrap">
+    <span>Read-only · no keys · classical key published for Q-Day, chain holds anyway</span>
+    <nav>
+      <a href="/">Overview</a>
+      <a href="/api/state" target="_blank" rel="noopener">Raw state JSON ↗</a>
+      <a href="https://github.com/cipoklean/sentinel-treasury" target="_blank" rel="noopener">Repo ↗</a>
+    </nav>
+  </div>
+</footer>
+<script type="module" src="/assets/dashboard.js"></script>
+</body>
+</html>

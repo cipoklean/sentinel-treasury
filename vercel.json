@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "echo 'static site: web/ + api/state.ts'",
+  "outputDirectory": "web",
+  "cleanUrls": true,
+  "functions": {
+    "api/state.ts": {
+      "maxDuration": 30,
+      "includeFiles": "{deployments.testnet.json,dashboard/receipts.json}"
+    }
+  }
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "ts": "2026-11-13T22:53:50.126Z",
+    "invoiceId": "2",
+    "verdict": {
+      "action": "refuse",
+      "reason": "mandate required"
+    },
+    "decisionRef": "0xc2bfedbae07f3ca7d916ea9681503857e12c7b7331f799f7662660e4f9f5c913",
+    "txHash": "0xbaee26ec6e71b0ced3987042aea205bed4c7b590ec209a98c71397a1848c9817",
+    "outcome": "refused: mandate required",
+    "receipt": {
+      "domain": {
+        "name": "Sentinel",
+        "version": "1",
+        "chainId": 9800,
+        "verifyingContract": "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9"
+      },
+      "message": {
+        "invoiceId": "2",
+        "vendor": "0x9488BAD757ab796638f5Ad4ae5d8bE333AE77e6C",
+        "amount": "3000000000000000000",
+        "ref": "0x494e562d41554449542d30303200000000000000000000000000000000000000",
+        "action": "refuse",
+        "reason": "mandate required",
+        "timestamp": "1794610427"
+      },
+      "signature": "0x47860b0211d051d29fe2e47bc0ad8b23e690dfb12886e31c8a14cdb2d0068f057c411ffc48f177b505e12529a8e51bc87c3bc80fd8e4925bcc06eda4db28d9b01c",
+      "signer": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8"
+    }
+  },
+  {
+    "ts": "2026-11-13T22:53:52.649Z",
+    "invoiceId": "3",
+    "verdict": {
+      "action": "refuse",
+      "reason": "over per-tx cap"
+    },
+    "decisionRef": "0xab776f7aefaa528c9b7a7d0114bd47b488ca713ba3a41c14d114aa90207d06f8",
+    "txHash": "0xdaf06715c1751b7ae65c737100d09f18787c5e0a55469861c59bb10859b3c5a5",
+    "outcome": "refused: over per-tx cap",
+    "receipt": {
+      "domain": {
+        "name": "Sentinel",
+        "version": "1",
+        "chainId": 9800,
+        "verifyingContract": "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9"
+      },
+      "message": {
+        "invoiceId": "3",
+        "vendor": "0x9488BAD757ab796638f5Ad4ae5d8bE333AE77e6C",
+        "amount": "25000000000000000000",
+        "ref": "0x494e562d4441544143454e5445522d3030330000000000000000000000000000",
+        "action": "refuse",
+        "reason": "over per-tx cap",
+        "timestamp": "1794610430"
+      },
+      "signature": "0xbc0920bf3f9b843648850d8b968bf44cfa2feae34871056500e881c2a051931073093eb7a486e76143469d5aeebe5de0dad09304190f74a8bfd00869652ee1ca1b",
+      "signer": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8"
+    }
+  },
+  {
+    "ts": "2026-11-13T22:56:44.433Z",
+    "invoiceId": "2",
+    "verdict": {
+      "action": "payWithMandate",
+      "reason": "over threshold; operator mandate present"
+    },
+    "decisionRef": "0x39032eeed58e8413ee1ddfd609fb59bccadf0f32d6b057c58a21a260af099f0f",
+    "txHash": "0xf8b9e372ac5ea069565a5bc021e85dc14e4b00f5347b43350b9c039e662b1567",
+    "outcome": "executed 3 QOR",
+    "receipt": {
+      "domain": {
+        "name": "Sentinel",
+        "version": "1",
+        "chainId": 9800,
+        "verifyingContract": "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9"
+      },
+      "message": {
+        "invoiceId": "2",
+        "vendor": "0x9488BAD757ab796638f5Ad4ae5d8bE333AE77e6C",
+        "amount": "3000000000000000000",
+        "ref": "0x494e562d41554449542d30303200000000000000000000000000000000000000",
+        "action": "payWithMandate",
+        "reason": "over threshold; operator mandate present",
+        "timestamp": "1794610601"
+      },
+      "signature": "0xd9326c5063f0a6972c44d3e962d28867a53768af351108a4db4b4e38be368306174cc602df97853f3429bda98e35b9662fa3bd75b8616834bfeff37af27a02a21b",
+      "signer": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8"
+    }
+  },
+  {
+    "ts": "2026-11-14T00:18:03.893Z",
+    "invoiceId": "5",
+    "verdict": {
+      "action": "pay",
+      "reason": "within policy"
+    },
+    "decisionRef": "0x7fdb88ee3cbb77e2c1664c7f3b44091c3a7bfad6b1b4386e6ee15c1803e0ef24",
+    "txHash": "0x41c782cfe62185fa6f67cbae093cf9e313665ed66f9a11411066730093610c0b",
+    "outcome": "executed 0.5 QOR",
+    "receipt": {
+      "domain": {
+        "name": "Sentinel",
+        "version": "1",
+        "chainId": 9800,
+        "verifyingContract": "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9"
+      },
+      "message": {
+        "invoiceId": "5",
+        "vendor": "0x9488BAD757ab796638f5Ad4ae5d8bE333AE77e6C",
+        "amount": "500000000000000000",
+        "ref": "0x494e562d534141532d3030350000000000000000000000000000000000000000",
+        "action": "pay",
+        "reason": "within policy",
+        "timestamp": "1794615481"
+      },
+      "signature": "0xe6fa900ecc6272613b476f6faea45838bde6b3a6fd6887f16a4f037c3c9d46f65e18b3d23e334bb23e715a2e3b393586f0247805d8f57311c8db62e57b67b05e1b",
+      "signer": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8"
+    },
+    "llm": {
+      "model": "deepseek/deepseek-v4.1-flash",
+      "vetoed": false,
+      "confidence": 0.99,
+      "reason": "Invoice ref decodes to INV-SAAS-005 matching invoice id 5, amount is routine and within all caps."
+    }
+  }
+]

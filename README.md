@@ -109,15 +109,28 @@ npx tsx guardian/index.ts        # renews window, issues mandates, kill switch
 # abstract account rail
 npx tsx scripts/aa.ts status|link|pay <id>|exec <to> <data>
 
-# live dashboard                  (read-only, needs no keys)
-pnpm dashboard                   # http://localhost:8787
+# website: landing page + live board   (read-only, needs no keys)
+pnpm dashboard                   # http://localhost:8787  (board: /dashboard)
+pnpm receipts:export             # logs/decisions.jsonl -> dashboard/receipts.json
 ```
 
-The dashboard renders the decision board live: every invoice row with its
-verdict (PAID / REFUSED / VETOED / PENDING), the signed receipt's
-`decisionRef`, and the on-chain tx it anchors to. Below the board: the
-agent's scoped-window budget, vault policy state, and the DeepSeek review
-annotation on each decision.
+The site lives in `web/`: a landing page (`/`) explaining the bounds, the
+custody split, the payment lifecycle, the Q-Day drill and the rubric→tx
+evidence table, plus the live decision board (`/dashboard`).
+
+Both read `/api/state` (`api/state.ts` → `dashboard/state.ts`). It rebuilds the
+decision history from PolicyVault and InvoiceRegistry event logs
+(`eth_getLogs`), so it needs no local runtime log and runs unchanged as a
+Vercel serverless function. The agent's signed EIP-712 receipts are exported
+to `dashboard/receipts.json` and re-verified on every request (signature →
+agent address, `keccak256(sig) == decisionRef`). They annotate the chain
+record and never override it.
+
+Deploy to Vercel: import the repo with no framework preset. `vercel.json`
+serves `web/` statically and runs `api/state.ts`. No environment variables
+are needed (`QORE_EVM_RPC` / `QORE_REST_URL` optionally override the endpoints).
+
+```
 
 Window scoping is set via `QORE_WINDOW_TARGETS=0x..,0x..` before
 `pnpm window open`; `QORE_WINDOW_NATIVE_ONLY=1` narrows to plain transfers.
