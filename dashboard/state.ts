@@ -156,7 +156,16 @@ async function deployBlock() {
   return cache.deployBlock;
 }
 
-async function syncLogs(head: bigint) {
+let syncing: Promise<void> = Promise.resolve();
+
+/** Serialized so overlapping requests never scan (and append) the same range twice. */
+function syncLogs(head: bigint) {
+  const run = syncing.then(() => scanLogs(head));
+  syncing = run.catch(() => {});
+  return run;
+}
+
+async function scanLogs(head: bigint) {
   await deployBlock();
   for (let from = cache.scannedTo + 1n; from <= head; from += LOG_CHUNK) {
     const to = from + LOG_CHUNK - 1n > head ? head : from + LOG_CHUNK - 1n;
