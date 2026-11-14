@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>document.documentElement.classList.add("js")</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sentinel — the treasury agent that cannot overspend</title>
+<meta name="description" content="An autonomous AI agent that pays invoices on QoreChain and is cryptographically incapable of exceeding its mandate: scoped EVM window, abstract-account spending rules and a post-quantum PolicyVault." />
+<meta property="og:title" content="Sentinel — the treasury agent that cannot overspend" />
+<meta property="og:description" content="Hand the agent's classical key to an attacker; it stops at the protocol. Built for Build Before Q-Day, Track A." />
+<meta property="og:image" content="/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="theme-color" content="#F4EFE6" />
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Sentinel home">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".6"/><circle cx="12" cy="12" r="3.4" fill="none" stroke="#B4490A" stroke-width="1.6"/><circle cx="12" cy="12" r="1.2" fill="#B4490A"/></svg>
+      SENTINEL<span class="dot">.</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#bounds">Bounds</a>
+      <a href="#lifecycle">Lifecycle</a>
+      <a href="#drill">Q-Day drill</a>
+      <a href="#evidence">Evidence</a>
+      <span id="live" class="live-pill"><span class="live-dot"></span><span class="live-txt">connecting…</span><span class="net">&nbsp;· diana</span></span>
+      <a class="cta" href="/dashboard">Live board →</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Autonomous treasury agent · QoreChain testnet</p>
+        <h1>The treasury agent that <em>cannot</em> overspend.</h1>
+        <p class="lede">Sentinel pays invoices on its own. Every limit on its spending is enforced by a different layer of <b>qorechain-diana</b>: two inside the consensus protocol, one in a Solidity vault that verifies post-quantum signatures with native precompiles.</p>
+        <div class="btns">
+          <a class="btn primary" href="/dashboard">Open the live board <span class="arr">→</span></a>
+          <a class="btn ghost" href="#drill">Try to break it</a>
+        </div>
+        <p class="hero-note"><b>→ hand the classical key to an attacker;</b><br />it stops at the protocol.</p>
+      </div>
+
+      <svg class="rings" id="rings" viewBox="0 0 520 520" role="img" aria-labelledby="rings-t">
+        <title id="rings-t">Three concentric enforcement bounds around the agent key</title>
+        <circle class="spark" cx="260" cy="260" r="246" />
+        <g data-layer="l0">
+          <circle class="ring" cx="260" cy="260" r="222" stroke="#17140F" stroke-width="1.4" />
+          <circle class="ring-hit" cx="260" cy="260" r="222" />
+          <text class="lbl" x="260" y="30" text-anchor="middle">L0 · Scoped EVM window</text>
+        </g>
+        <g data-layer="l1">
+          <circle class="ring" cx="260" cy="260" r="160" stroke="#17140F" stroke-opacity=".5" stroke-width="1.2" />
+          <circle class="ring-hit" cx="260" cy="260" r="160" />
+          <text class="lbl" x="260" y="92" text-anchor="middle">L1 · Spending rules</text>
+        </g>
+        <g data-layer="l2">
+          <circle class="ring" cx="260" cy="260" r="98" stroke="#B4490A" stroke-width="2" />
+          <circle class="ring-hit" cx="260" cy="260" r="98" />
+          <text class="lbl" x="260" y="154" text-anchor="middle" style="fill:#B4490A">L2 · PolicyVault</text>
+        </g>
+        <g data-layer="l3">
+          <circle class="core" cx="260" cy="260" r="44" />
+          <circle class="ring-hit" cx="260" cy="260" r="30" style="stroke-width:44" />
+          <text class="core-t" x="260" y="256" text-anchor="middle">AGENT</text>
+          <text class="core-t" x="260" y="270" text-anchor="middle">KEY</text>
+        </g>
+        <text class="lbl" x="260" y="510" text-anchor="middle" style="font-size:10px">ECDSA AT CENTRE · PQ SECRET ABSENT</text>
+      </svg>
+    </div>
+
+    <div class="wrap" style="margin-top:56px">
+      <div class="strip" aria-live="polite">
+        <div><div class="k">Invoices settled</div><div class="v" id="h-paid"><span class="skeleton"></span></div><div class="u" id="h-paid-u">from chain events</div></div>
+        <div><div class="k">Refused on-chain</div><div class="v" id="h-refused"><span class="skeleton"></span></div><div class="u">PaymentRefused logs</div></div>
+        <div><div class="k">Window budget</div><div class="v" id="h-window"><span class="skeleton"></span></div><div class="u" id="h-window-u">QOR left in scope</div></div>
+        <div><div class="k">Vault balance</div><div class="v" id="h-vault"><span class="skeleton"></span></div><div class="u" id="h-vault-u">QOR held</div></div>
+        <div class="accent-v"><div class="k">Latest decision</div><div class="v" id="h-last"><span class="skeleton"></span></div><div class="u" id="h-last-u">–</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- premise -->
+  <section class="sec" id="premise">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="sec-num"><b>01</b> / Premise</p>
+        <div>
+          <h2>Elsewhere, an agent's budget is <em>a line of app code</em>.</h2>
+          <p class="lede">On a typical EVM chain, "spending limits" for an AI agent live in the same software the agent runs, or in one contract. One leaked key or one bug and they're gone. Sentinel moves each limit into a separate enforcer the agent cannot reach.</p>
+        </div>
+      </div>
+      <table class="compare reveal">
+        <thead><tr><th scope="col">Threat</th><th scope="col">Typical agent wallet</th><th scope="col">Sentinel on QoreChain</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Agent key leaks</th><td>Attacker can send funds anywhere the key can sign for.</td><td>The chain rejects any tx whose target isn't the vault or registry, before execution.</td></tr>
+          <tr><th scope="row">Contract bug</th><td>All limits fall with the one contract that holds them.</td><td>Two more independent limits live in the protocol: the EVM window and the abstract-account rule.</td></tr>
+          <tr><th scope="row">Large payment</th><td>Approved by whoever holds a classical key.</td><td>Needs an operator ML-DSA-87 mandate, verified in Solidity by the <code>pqcVerify</code> precompile.</td></tr>
+          <tr><th scope="row">Agent tries to widen its scope</th><td>Calls an admin function with its own key.</td><td>Widening needs the account's PQ key. The agent process never holds the recovery code it derives from.</td></tr>
+          <tr><th scope="row">Quantum adversary</th><td>Forges ECDSA, owns everything.</td><td>Forged ECDSA gets only the agent's bounded slice. Mandates and window control are post-quantum.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- bounds -->
+  <section class="sec" id="bounds">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="sec-num"><b>02</b> / Bounds</p>
+        <div>
+          <h2>Four layers. <em>Four different enforcers.</em></h2>
+          <p class="lede">Each ring is checked by different code at a different point in a transaction's life. Hover a layer to find it in the diagram.</p>
+        </div>
+      </div>
+      <div class="layers-grid">
+        <div class="layers-sticky reveal">
+          <svg class="rings" id="rings-2" viewBox="0 0 520 520" role="img" aria-label="Enforcement rings">
+            <g data-layer="l0"><circle class="ring" cx="260" cy="260" r="222" stroke="#17140F" stroke-width="1.4"/><circle class="ring-hit" cx="260" cy="260" r="222"/><text class="lbl" x="260" y="30" text-anchor="middle">L0 · chain window</text></g>
+            <g data-layer="l1"><circle class="ring" cx="260" cy="260" r="160" stroke="#17140F" stroke-opacity=".5" stroke-width="1.2"/><circle class="ring-hit" cx="260" cy="260" r="160"/><text class="lbl" x="260" y="92" text-anchor="middle">L1 · abstract account</text></g>
+            <g data-layer="l2"><circle class="ring" cx="260" cy="260" r="98" stroke="#B4490A" stroke-width="2"/><circle class="ring-hit" cx="260" cy="260" r="98"/><text class="lbl" x="260" y="154" text-anchor="middle" style="fill:#B4490A">L2 · policy vault</text></g>
+            <g data-layer="l3"><circle class="core" cx="260" cy="260" r="44"/><circle class="ring-hit" cx="260" cy="260" r="30" style="stroke-width:44"/><text class="core-t" x="260" y="256" text-anchor="middle">L3</text><text class="core-t" x="260" y="270" text-anchor="middle">AGENT</text></g>
+          </svg>
+        </div>
+        <div class="layer-list">
+          <article class="layer reveal" data-layer="l0">
+            <div class="layer-top"><span class="lvl">L0</span><span class="tag hot">consensus</span></div>
+            <h3>Scoped EVM window</h3>
+            <p>The agent's EOA can only broadcast EVM transactions inside a window opened by a hybrid-signed native tx. The window names its allowed targets; anything else is rejected at broadcast, with no contract code involved.</p>
+            <div class="params"><span>allowed_targets = [vault, registry]</span><span>17,280 blocks</span><span>max 20 txs</span><span>max 4 QOR</span></div>
+            <p class="ev">open tx · <a class="txlink" href="https://explore.qore.network/tx/A6293E8A882E295054A751E7E21C3A3475FFBA6C3FD2FDDEEF026D4D3753655F" target="_blank" rel="noopener">A6293E8A…655F</a></p>
+          </article>
+          <article class="layer reveal" data-layer="l1">
+            <div class="layer-top"><span class="lvl">L1</span><span class="tag hot">x/abstractaccount</span></div>
+            <h3>Abstract-account spending rules</h3>
+            <p>The agent key is also linked as an authenticator on the operator's abstract account, with an EVM permission and a protocol-level spending rule. It's a second allowlist with its own budgets, kept by a different module.</p>
+            <div class="params"><span>rule sentinel-agent-evm</span><span>allowed_evm_calls = [vault]</span><span>1 QOR / tx</span><span>5 QOR / day</span><span>expires in 7 days</span></div>
+            <p class="ev">link tx · <a class="txlink" href="https://explore.qore.network/tx/14FE8A997D24CB0AD43D5E8F7FADC5071D29DBE2317249C73EC88DDB5D777733" target="_blank" rel="noopener">14FE8A99…7733</a></p>
+          </article>
+          <article class="layer reveal" data-layer="l2">
+            <div class="layer-top"><span class="lvl">L2</span><span class="tag hot">solidity + PQC precompiles</span></div>
+            <h3>PolicyVault</h3>
+            <p>Holds the treasury and re-checks every payment no matter what the agent decided: pause, vendor allowlist, per-tx cap, rolling daily cap. Above the threshold it needs an operator ML-DSA-87 mandate verified by <code>pqcVerify</code> (0x0A01). Admin calls re-check <code>pqcKeyStatus</code> (0x0A02). Refusals are emitted on-chain.</p>
+            <div class="params"><span>per-tx 5 QOR</span><span>daily 20 QOR</span><span>mandate &gt; 2 QOR</span><span>vendor allowlist</span><span>pause</span></div>
+            <p class="ev">contract · <a class="txlink" href="https://explore.qore.network/address/0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9" target="_blank" rel="noopener">0x18221b4d…D1C9</a></p>
+          </article>
+          <article class="layer reveal" data-layer="l3">
+            <div class="layer-top"><span class="lvl">L3</span><span class="tag">services</span></div>
+            <h3>Agent &amp; guardian</h3>
+            <p>The agent scans the registry, decides, signs an EIP-712 receipt and calls <code>pay</code>. A separate guardian renews the window, issues mandates and runs the kill switch. The agent holds only its classical key, so it can't open its own window.</p>
+            <div class="params"><span>agent/ · scan → decide → receipt → pay</span><span>guardian/ · renew · mandate · kill</span><span>LLM veto-only</span></div>
+            <p class="ev">source · <a class="txlink" href="https://github.com/cipoklean/sentinel-treasury/tree/main/agent" target="_blank" rel="noopener">agent/</a> · <a class="txlink" href="https://github.com/cipoklean/sentinel-treasury/tree/main/guardian" target="_blank" rel="noopener">guardian/</a></p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- custody -->
+  <section class="sec" id="custody">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="sec-num"><b>03</b> / Custody</p>
+        <div>
+          <h2>Who holds which key, and <em>what they can't do.</em></h2>
+          <p class="lede">Authority is split across three processes. The hot one, the agent, is also the one with the least power.</p>
+        </div>
+      </div>
+      <div class="actors reveal">
+        <div class="actor">
+          <p class="role">Operator · cold</p>
+          <h3>Owner</h3>
+          <p class="key">ML-DSA-87 + ECDSA, hybrid-signed</p>
+          <ul>
+            <li>Opens and closes EVM windows</li>
+            <li>Links authenticators and spending rules</li>
+            <li>Signs payment mandates above threshold</li>
+            <li>Sets policy, allowlist, pause</li>
+          </ul>
+        </div>
+        <div class="actor">
+          <p class="role">Guardian · warm</p>
+          <h3>Supervisor</h3>
+          <p class="key">holds the agent's PQC recovery code</p>
+          <ul>
+            <li>Renews the agent's scoped window when it runs low</li>
+            <li>Auto-issues mandates within an approval ceiling</li>
+            <li>Kill switch: closes the window, pauses the vault</li>
+            <li class="no">Decides what to pay</li>
+          </ul>
+        </div>
+        <div class="actor dark">
+          <p class="role">Agent · hot</p>
+          <h3 style="color:var(--board-ink)">Sentinel</h3>
+          <p class="key" style="color:var(--amber)">classical secp256k1 only</p>
+          <ul>
+            <li class="yes">Scans invoices, decides, signs EIP-712 receipts</li>
+            <li class="yes">Calls <code style="background:var(--board-3);border-color:var(--board-line);color:var(--board-ink)">pay</code> on the vault</li>
+            <li class="no">Open or widen its own window</li>
+            <li class="no">Sign a mandate</li>
+            <li class="no">Call any other contract</li>
+          </ul>
+        </div>
+      </div>
+      <p class="custody-note reveal">→ The agent's ML-DSA-87 key derives from <code>QORE_PQC_RECOVERY_CODE</code>, which only <code>guardian/env.ts</code> loads. <code>agent/config.ts</code> loads only <code>PRIVATE_KEY</code>.</p>
+    </div>
+  </section>
+
+  <!-- lifecycle -->
+  <section class="sec" id="lifecycle">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="sec-num"><b>04</b> / Lifecycle</p>
+        <div>
+          <h2>The life of one payment.</h2>
+          <p class="lede">The agent's own judgement comes first, but the chain gets the final word, three times.</p>
+        </div>
+      </div>
+      <ol class="pipe reveal">
+        <li><span class="n">1</span><h3>Scan</h3><p>Read pending invoices from the registry.</p><span class="where">InvoiceRegistry.invoice(id)</span></li>
+        <li><span class="n">2</span><h3>Decide</h3><p>Mirror the vault: pause → allowlist → per-tx → daily → threshold.</p><span class="where">agent/policy.ts</span></li>
+        <li><span class="n">3</span><h3>Review</h3><p>An LLM may veto an approved payment. It can never approve a refused one.</p><span class="where">agent/llm.ts · DeepSeek</span></li>
+        <li><span class="n">4</span><h3>Sign</h3><p>EIP-712 Decision receipt. <code>decisionRef = keccak256(sig)</code> travels on-chain.</p><span class="where">agent/receipt.ts</span></li>
+        <li class="chain"><span class="n">5</span><h3>Admit</h3><p>The node checks the scoped window: target, tx count, value, expiry.</p><span class="where">L0 · consensus</span></li>
+        <li class="pq"><span class="n">6</span><h3>Settle</h3><p>The vault re-checks policy. Over 2 QOR, <code>pqcVerify</code> checks the operator's ML-DSA-87 mandate.</p><span class="where">L2 · PolicyVault</span></li>
+        <li class="chain"><span class="n">7</span><h3>Record</h3><p><code>PaymentExecuted</code> or <code>PaymentRefused</code>. Refusals are on-chain too.</p><span class="where">event log</span></li>
+      </ol>
+      <div class="pipe-legend reveal"><span><i></i>agent process</span><span><i class="c"></i>enforced by the chain</span><span><i class="p"></i>post-quantum check</span></div>
+    </div>
+  </section>
+
+  <!-- drill -->
+  <section class="sec drill" id="drill">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="sec-num"><b>05</b> / Q-Day drill</p>
+        <div>
+          <h2>On 18 Nov the attacker gets the key. <em>Pick an attack.</em></h2>
+          <p class="lede">For the Q-Day Drill the agent account is the target: the attack bot receives Sentinel's classical ECDSA key, the same position a quantum adversary would be in. Here is what it can try and where each attempt stops.</p>
+        </div>
+      </div>
+
+      <div class="drill-grid reveal">
+        <ul class="attacks" id="attacks" role="tablist" aria-label="Attacks"></ul>
+        <div class="verdict-panel" id="verdict" role="tabpanel" aria-live="polite"></div>
+      </div>
+
+      <div class="drill-meta reveal">
+        <div><p class="k">Drill day</p><p class="countdown" id="countdown">18 Nov</p><p>The attack bot gets the agent's ECDSA private key.</p></div>
+        <div><p class="k">What it holds</p><p>The agent's ECDSA key: valid signatures, a funded EOA, a live scoped window. It does not hold the PQ key, the operator account or the guardian.</p></div>
+        <div><p class="k">After the drill</p><p>Rotate: <code style="background:var(--board-3);border-color:var(--board-line);color:var(--board-ink)">setAgent</code> → new scoped window → re-linked authenticator. The old key is left with nothing.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- evidence -->
+  <section class="sec" id="evidence">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="sec-num"><b>06</b> / Evidence</p>
+        <div>
+          <h2>Every claim is <em>a transaction</em>.</h2>
+          <p class="lede">Track A rubric mapped to on-chain proof on <code>qorechain-diana</code> (EVM 9800). Addresses and hashes are also in <a href="https://github.com/cipoklean/sentinel-treasury/blob/main/deployments.testnet.json" target="_blank" rel="noopener">deployments.testnet.json</a>.</p>
+        </div>
+      </div>
+      <table class="evidence reveal">
+        <thead><tr><th scope="col">Requirement</th><th scope="col">Mechanism</th><th scope="col">Proof</th></tr></thead>
+        <tbody id="evidence-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- deployed -->
+  <section class="sec" id="deployed">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="sec-num"><b>07</b> / Deployed</p>
+        <div><h2>Accounts and contracts.</h2></div>
+      </div>
+      <div class="addr-grid reveal" id="addrs"></div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="band-inner reveal">
+        <div>
+          <p class="eyebrow">Live · read-only · no keys</p>
+          <h2 style="margin-top:14px">Watch it decide.</h2>
+          <p class="lede" style="margin-top:14px">The board rebuilds Sentinel's history from vault and registry event logs on every refresh, and re-verifies each signed decision receipt against the agent's address.</p>
+        </div>
+        <div class="btns"><a class="btn primary" href="/dashboard">Open the live board <span class="arr">→</span></a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Build Before Q-Day · Advanced Track A · Apache-2.0</span>
+    <nav>
+      <a href="https://github.com/cipoklean/sentinel-treasury" target="_blank" rel="noopener">Repo ↗</a>
+      <a href="https://github.com/cipoklean/sentinel-treasury/blob/main/AI_USAGE.md" target="_blank" rel="noopener">AI usage ↗</a>
+      <a href="https://explore.qore.network" target="_blank" rel="noopener">Explorer ↗</a>
+      <a href="/dashboard">Live board</a>
+    </nav>
+  </div>
+</footer>
+
+<script type="module" src="/assets/landing.js"></script>
+</body>
+</html>
