@@ -108,7 +108,16 @@ npx tsx guardian/index.ts        # renews window, issues mandates, kill switch
 
 # abstract account rail
 npx tsx scripts/aa.ts status|link|pay <id>|exec <to> <data>
+
+# live dashboard                  (read-only, needs no keys)
+pnpm dashboard                   # http://localhost:8787
 ```
+
+The dashboard renders the decision board live: every invoice row with its
+verdict (PAID / REFUSED / VETOED / PENDING), the signed receipt's
+`decisionRef`, and the on-chain tx it anchors to. Below the board: the
+agent's scoped-window budget, vault policy state, and the DeepSeek review
+annotation on each decision.
 
 Window scoping is set via `QORE_WINDOW_TARGETS=0x..,0x..` before
 `pnpm window open`; `QORE_WINDOW_NATIVE_ONLY=1` narrows to plain transfers.
@@ -123,7 +132,8 @@ in-memory EVM lacks QoreChain's native precompiles. Deploy with
 - [x] contracts deployed + seeded, all enforcement layers proven on-chain
 - [x] agent + guardian loops running end-to-end incl. PQ mandate arc
 - [x] drill account registered (agent key + both contracts)
-- [ ] LLM decision reasoning, dashboard, drill-day replay, video
+- [x] LLM veto layer (DeepSeek via Sandbase) + live dashboard
+- [ ] drill-day replay, QCAI hardening, video
 
 ## License
 
