@@ -6,6 +6,9 @@ exceeding its mandate.**
 Built for **Build Before Q-Day**, Advanced Track A: Post-Quantum AI Agents.
 Everything below runs on `qorechain-diana` (EVM chain id `9800`).
 
+**Live site:** <https://sentinel-liart-kappa.vercel.app> — landing + live
+decision board (`/dashboard`), rebuilt from on-chain events.
+
 ```
 ┌─ OPERATOR (cold, ML-DSA-87) ───────────────────────────────────────┐
 │  opens/closes windows · links authenticators · signs mandates       │
