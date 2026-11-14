@@ -22,7 +22,13 @@ const TYPES: Record<string, string> = {
 };
 
 function resolve(pathname: string): string | null {
-  const clean = normalize(decodeURIComponent(pathname)).replace(/^(\.\.[/\\])+/, "");
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    return null;
+  }
+  const clean = normalize(decoded).replace(/^(\.\.[/\\])+/, "");
   for (const candidate of [clean, `${clean}.html`, join(clean, "index.html")]) {
     const p = join(WEB, candidate);
     if (p.startsWith(WEB) && existsSync(p) && statSync(p).isFile()) return p;
