@@ -395,7 +395,7 @@ export async function getState() {
         }
       : null;
 
-  const invoices = onchain.map((inv, i) => {
+  const invoices = onchain.map((inv: any, i: number) => {
     const id = String(ids[i]);
     const status = INVOICE_STATUS[inv.status] ?? `UNKNOWN(${inv.status})`;
     const mine = events.filter((e) => e.invoiceId === id);
@@ -491,7 +491,7 @@ export async function getState() {
 
   const nowDay = Math.floor(Date.now() / 86_400_000);
   const spentTodayEffective = Number(spentDay) === nowDay ? spentToday : 0n;
-  const settledQor = invoices.filter((i) => i.status === "PAID").reduce((s, i) => s + Number(i.amountQor), 0);
+  const settledQor = invoices.filter((i: any) => i.status === "PAID").reduce((s: number, i: any) => s + Number(i.amountQor), 0);
 
   return {
     ts: new Date().toISOString(),
@@ -528,7 +528,7 @@ export async function getState() {
     },
     stats: {
       invoices: invoices.length,
-      paid: invoices.filter((i) => i.verdict === "PAID").length,
+      paid: invoices.filter((i: any) => i.verdict === "PAID").length,
       refusedOnChain: events.filter((e) => e.kind === "PaymentRefused").length,
       settledQor: String(settledQor),
       receipts: receipts.length,
