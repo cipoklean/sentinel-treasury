@@ -142,7 +142,7 @@ async function refresh() {
   } catch (e) {
     setLive(null, e);
     $("#updated").textContent = `rpc error · retrying`;
-    if (!last) $("#rows").innerHTML = `<div class="empty">could not reach qorechain-diana: ${esc(e.message)}</div>`;
+    if (!last) $("#rows").innerHTML = `<div class="empty">qorechain-diana unreachable — retrying</div>`;
   }
 }
 refresh();

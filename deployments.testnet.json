@@ -51,9 +51,21 @@
     "allowVendor": "0xc6ebad9848b54210ad00f48253d17664c46b4763d19f7dc44cb308ea838816a0",
     "deposit8Qor": "0xbb607654868387cef9dfad610d947a57a2f4c34eb09507c492b83986f5653324",
     "invoices": {
-      "1": { "ref": "INV-OFFICE-001", "amountQor": 1, "submitTx": "0xb519cce7a59c9a51e11553909529ab24ef7382f8f77381feeb80f57d9d882309" },
-      "2": { "ref": "INV-AUDIT-002", "amountQor": 3, "submitTx": "0x31d6f4a760451a0b383fa2e9e253124eaf04d4b2d6a0b16d2c1e05f75b8119e2" },
-      "3": { "ref": "INV-DATACENTER-003", "amountQor": 25, "submitTx": "0x7405b2b39e3d6c218f48f39106f2803c3afd51444b21cfe99a55451473a85aef" }
+      "1": {
+        "ref": "INV-OFFICE-001",
+        "amountQor": 1,
+        "submitTx": "0xb519cce7a59c9a51e11553909529ab24ef7382f8f77381feeb80f57d9d882309"
+      },
+      "2": {
+        "ref": "INV-AUDIT-002",
+        "amountQor": 3,
+        "submitTx": "0x31d6f4a760451a0b383fa2e9e253124eaf04d4b2d6a0b16d2c1e05f75b8119e2"
+      },
+      "3": {
+        "ref": "INV-DATACENTER-003",
+        "amountQor": 25,
+        "submitTx": "0x7405b2b39e3d6c218f48f39106f2803c3afd51444b21cfe99a55451473a85aef"
+      }
     }
   },
   "proofTxs": {
@@ -65,18 +77,45 @@
     "payWithMandate_pqcVerified_invoice2": "0xf8b9e372ac5ea069565a5bc021e85dc14e4b00f5347b43350b9c039e662b1567",
     "aaAuthenticatorLink": "14FE8A997D24CB0AD43D5E8F7FADC5071D29DBE2317249C73EC88DDB5D777733",
     "aaExecutedPay_invoice4": "E380CE11957A5388269789E9F34DE3EE254B5E7E76BB1F6C506CA28B57F912E1",
-    "aaRefusedCall_outsideAllowedEvmCalls": "34B98142040121032A9AF63EFE15109731BC01E4B881880306FCB3AE53552DB9"
+    "aaRefusedCall_outsideAllowedEvmCalls": "34B98142040121032A9AF63EFE15109731BC01E4B881880306FCB3AE53552DB9",
+    "aaRuleSelectorScoped": "F1F3F4A3B15AE4917EE5AE9792780D0183B62CCBE856A4F2A8F7C4A11EF6E9AA",
+    "aaSelectorRefused_withdraw": "AC46FFC76F7CE897E29BB111DC78EC71E9ED8CCF700400BD437C6AF30FCBE75C",
+    "vendorFunded": "4FD1D354D03AA20E450437E2DFCE12A0D8938942AE868B2A6A3E64BC5972699B",
+    "vendorPqcRegistered": "2F5F853CB24DA1AA04ACB9F82ED48E0666B95256AD747EEFC2A5F7BA3C1B0798",
+    "vendorWindowScoped": "E7AE893AD4332E4ABD5268B3059B99BAB7F016F4B1BDA4302BDFB5246A46ED1A",
+    "vendorAllowlisted": "0x6fd297de9d778aebd59a971389a6548124da9c72ec3d0ac53a208342879ffda1",
+    "vendorSubmittedInvoice6": "0x7b3f7561c96c1822cea71b74fa9e2c33d8efb8e5859160ef8ec25417efb9293d",
+    "agentPaidInvoice6_thirdPartyVendor": "0xb5ed71557dec54dfd6f2a447e2b6ec8c50e02a831ef3e328d7eea67878a9b8ef"
   },
   "abstractAccount": {
     "account": "qor1jjyt446h4dukvw84449wtk97xvawwlnvqa327s",
     "authenticator": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8",
-    "permissions": ["evm"],
+    "permissions": [
+      "evm"
+    ],
     "spendingRule": {
       "id": "sentinel-agent-evm",
       "perTxLimitUqor": 1000000,
       "dailyLimitUqor": 5000000,
-      "allowedEvmCalls": ["0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9"]
+      "allowedEvmCalls": [
+        "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9"
+      ]
     },
     "expiryDays": 7
+  },
+  "spendingRule": {
+    "id": "sentinel-agent-evm",
+    "perTxLimit": "1000000",
+    "dailyLimit": "5000000",
+    "allowedEvmCalls": [
+      "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9/0x8e6bee97",
+      "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9/0xcc444de3"
+    ],
+    "note": "selector-scoped to vault pay/payWithMandate only (was bare address before audit fix)"
+  },
+  "vendor": {
+    "evm": "0x7E9826b333564C9b1DEE260C9C69E103833b524e",
+    "cosmos": "qor106vzdven2exfk80wycxfc60pqwpnk5jwtp8v0p",
+    "note": "independent demo vendor: own ML-DSA-87 key, window scoped to registry only, submits invoices as msg.sender"
   }
 }

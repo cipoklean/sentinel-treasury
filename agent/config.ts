@@ -55,6 +55,7 @@ export const VAULT_ABI = parseAbi([
   "function spentToday() view returns (uint256)",
   "function spentDay() view returns (uint64)",
   "function paused() view returns (bool)",
+  "function setPaused(bool p)",
   "function agent() view returns (address)",
   "event PaymentExecuted(uint256 indexed invoiceId, address indexed vendor, uint256 amount, bytes32 decisionRef, bool withMandate)",
   "event PaymentRefused(uint256 indexed invoiceId, address indexed vendor, uint256 amount, string reason)",

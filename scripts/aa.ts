@@ -24,10 +24,11 @@ import {
   fetchAuthenticators,
   fetchSpendingRules,
   evmToQor,
+  abstractaccount,
   type UnifiedAccount,
 } from "@qorechain/sdk";
 import { privateKeyToAccount } from "viem/accounts";
-import { hexToBytes, toHex, encodeFunctionData, parseAbi } from "viem";
+import { hexToBytes, toHex, encodeFunctionData, parseAbi, toFunctionSelector } from "viem";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -40,6 +41,13 @@ const deployments = JSON.parse(
   readFileSync(join(import.meta.dirname, "..", "deployments.testnet.json"), "utf8"),
 );
 const VAULT = deployments.contracts.PolicyVault.address as `0x${string}`;
+
+// "0x<target>" alone = any function of the contract (it executes as the
+// operator). Scope to the two functions the agent ever needs.
+const SELECTOR_SCOPED_CALLS = [
+  `${VAULT}/${toFunctionSelector("pay(uint256,bytes32)")}`,
+  `${VAULT}/${toFunctionSelector("payWithMandate(uint256,bytes32,uint64,bytes)")}`,
+];
 
 function parseEnv(path: string): Record<string, string> {
   const out: Record<string, string> = {};
@@ -121,13 +129,51 @@ async function link() {
       dailyLimit: "5000000",
       allowedDenoms: [],
       enabled: true,
-      // Protocol-level call allowlist: this key may only invoke the vault.
-      allowedEvmCalls: [VAULT],
+      // Selector-scoped: pay/payWithMandate only. A bare address would trust
+      // every function — including operator-only withdraw/setPolicy — since
+      // the call executes as the operator.
+      allowedEvmCalls: SELECTOR_SCOPED_CALLS,
       denomLimits: [],
     },
   });
   console.log(`linking ${agentEth.address} -> ${operator.cosmos}`);
   console.log(`linked: ${await broadcast(operator, msgs)}`);
+}
+
+/** Re-scope the linked rule to function-selector granularity. Without this the
+ * agent key can run ANY vault function as the operator — withdraw included. */
+async function scope() {
+  const rules = await fetchSpendingRules({ rest: REST, address: operator.cosmos });
+  const list = (rules.rules ?? rules) as any[];
+  const patched = list.map((r: any) =>
+    r.id === "sentinel-agent-evm" ? { ...r, allowedEvmCalls: SELECTOR_SCOPED_CALLS } : r,
+  );
+  const msg = abstractaccount.updateSpendingRules({
+    owner: operator.cosmos,
+    accountAddress: operator.cosmos,
+    rules: patched.map((r: any) => ({
+      ...r,
+      perTxLimit: String(r.perTxLimit ?? r.per_tx_limit ?? "0"),
+      dailyLimit: String(r.dailyLimit ?? r.daily_limit ?? "0"),
+      allowedDenoms: r.allowedDenoms ?? r.allowed_denoms ?? [],
+      allowedEvmCalls: r.allowedEvmCalls ?? r.allowed_evm_calls ?? [],
+      denomLimits: r.denomLimits ?? r.denom_limits ?? [],
+    })),
+  });
+  console.log(`scoping rule sentinel-agent-evm to: ${SELECTOR_SCOPED_CALLS.join(", ")}`);
+  console.log(`updated: ${await broadcast(operator, [msg])}`);
+}
+
+/** Kill-switch path: instantly disable the agent's linked key. */
+async function revoke() {
+  const msg = abstractaccount.revokeAuthenticator({
+    owner: operator.cosmos,
+    accountAddress: operator.cosmos,
+    scheme: "secp256k1",
+    pubkey: agentAddrBytes,
+  });
+  console.log(`revoking ${agentEth.address} from ${operator.cosmos}`);
+  console.log(`revoked: ${await broadcast(operator, [msg])}`);
 }
 
 const PAY_ABI = parseAbi(["function pay(uint256 invoiceId, bytes32 decisionRef)"]);
@@ -216,6 +262,8 @@ async function exec(to: string, dataHex: string, value = "0") {
 const commands: Record<string, () => Promise<void>> = {
   status,
   link,
+  scope,
+  revoke,
   pay: () => {
     const [id, ref] = process.argv.slice(3);
     if (!id) throw new Error("usage: aa.ts pay <invoiceId> <decisionRefHex>");
@@ -229,7 +277,7 @@ const commands: Record<string, () => Promise<void>> = {
 };
 const run = commands[process.argv[2] ?? "status"];
 if (!run) {
-  console.error("Use: status | link | pay <invoiceId> [ref]");
+  console.error("Use: status | link | scope | revoke | pay <invoiceId> [ref] | exec <to> <calldata>");
   process.exit(1);
 }
 run().catch((e) => {

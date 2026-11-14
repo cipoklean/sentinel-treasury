@@ -124,5 +124,41 @@
       "confidence": 0.99,
       "reason": "Invoice ref decodes to INV-SAAS-005 matching invoice id 5, amount is routine and within all caps."
     }
+  },
+  {
+    "ts": "2026-11-14T11:43:39.942Z",
+    "invoiceId": "6",
+    "verdict": {
+      "action": "pay",
+      "reason": "within policy"
+    },
+    "decisionRef": "0x579fa305c540c5089bb1d742cebd944ff5fa44c52ed2e102bc93f107d53a2c35",
+    "txHash": "0xb5ed71557dec54dfd6f2a447e2b6ec8c50e02a831ef3e328d7eea67878a9b8ef",
+    "outcome": "executed 0.75 QOR",
+    "receipt": {
+      "domain": {
+        "name": "Sentinel",
+        "version": "1",
+        "chainId": 9800,
+        "verifyingContract": "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9"
+      },
+      "message": {
+        "invoiceId": "6",
+        "vendor": "0x7E9826b333564C9b1DEE260C9C69E103833b524e",
+        "amount": "750000000000000000",
+        "ref": "0x494e562d465245454c414e43452d303036000000000000000000000000000000",
+        "action": "pay",
+        "reason": "within policy",
+        "timestamp": "1794656615"
+      },
+      "signature": "0x712fe9551029b41953658506857638a1f2c3e7236535cf61cda9efe87cb2611a58068c673184b033ca37e1cb4a23a78049741f6e0125b615cb09bc846ff18c841b",
+      "signer": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8"
+    },
+    "llm": {
+      "model": "deepseek/deepseek-v4.1-flash",
+      "vetoed": false,
+      "confidence": 0.98,
+      "reason": "Ref decodes to INV-FREELANCE-006 matching invoice id 6, amount is small and within all policy caps, and no duplicate or anomalous pattern is present."
+    }
   }
 ]

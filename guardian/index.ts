@@ -19,9 +19,11 @@ import {
   getNetwork,
   openEvmWindowMsg,
   closeEvmWindowMsg,
+  abstractaccount,
   type UnifiedAccount,
 } from "@qorechain/sdk";
 import { evmWindowStatus, evmWindowCost } from "@qorechain/evm";
+import { hexToBytes } from "viem";
 import { existsSync, unlinkSync, mkdirSync } from "node:fs";
 import {
   operatorAccount,
@@ -123,12 +125,38 @@ async function issueDueMandates(operator: UnifiedAccount) {
   }
 }
 
-async function kill(agent: UnifiedAccount, operator: UnifiedAccount) {
-  const closeMsg = closeEvmWindowMsg({ sender: agent.cosmos });
-  const tx = await broadcast(agent, "hybrid", [closeMsg]);
-  console.log(`[guardian] agent window closed: ${tx}`);
+/**
+ * Kill switch, best-effort per step so one failing rail can't wedge the rest:
+ *   1. revoke the agent's abstract-account authenticator (cuts the AA rail)
+ *   2. close the agent's scoped EVM window (cuts the EOA rail)
+ *   3. pause the vault (contract wall — stops even in-policy payments)
+ * Returns true once every step has landed; the KILL marker is only removed
+ * then. While it exists, renewal and mandate issuance stay suspended — the
+ * guardian must never reopen what it just closed.
+ */
+async function kill(agent: UnifiedAccount, operator: UnifiedAccount): Promise<boolean> {
+  let ok = true;
+  const step = async (name: string, fn: () => Promise<string>) => {
+    try {
+      console.log(`[guardian] ${name}: ${await fn()}`);
+    } catch (e) {
+      ok = false;
+      console.error(`[guardian] ${name} failed: ${e instanceof Error ? e.message : e}`);
+    }
+  };
 
-  // Pause the vault: an operator EVM call, needs an operator window.
+  await step("authenticator revoked", () =>
+    broadcast(operator, "hybrid", [
+      abstractaccount.revokeAuthenticator({
+        owner: operator.cosmos,
+        accountAddress: operator.cosmos,
+        scheme: "secp256k1",
+        pubkey: hexToBytes(agent.evm as `0x${string}`),
+      }),
+    ]),
+  );
+  await step("agent window closed", () => broadcast(agent, "hybrid", [closeEvmWindowMsg(agent.cosmos)]));
+
   const opEnv = Object.fromEntries(
     readFileSync(join(import.meta.dirname, "..", ".env"), "utf8")
       .split(/\r?\n/)
@@ -141,17 +169,18 @@ async function kill(agent: UnifiedAccount, operator: UnifiedAccount) {
   if (!w.live) {
     const perTx = evmWindowCost({ gas: 3_000_000n, maxFeePerGas: 250_000_000_000n });
     const open = openEvmWindowMsg({ sender: operator.cosmos, blocks: 600n, maxTxs: 3n, maxValue: perTx * 3n });
-    console.log(`[guardian] operator window opened: ${await broadcast(operator, "hybrid", [open])}`);
+    await step("operator window opened", () => broadcast(operator, "hybrid", [open]));
   }
-  const opWallet = createWalletClient({ account: opKey, chain: qoreDiana, transport: http() });
-  const pauseTx = await opWallet.writeContract({
-    address: ADDRESSES.vault,
-    abi: VAULT_ABI,
-    functionName: "setPaused",
-    args: [true],
+  await step("vault paused", async () => {
+    const opWallet = createWalletClient({ account: opKey, chain: qoreDiana, transport: http() });
+    return opWallet.writeContract({
+      address: ADDRESSES.vault,
+      abi: VAULT_ABI,
+      functionName: "setPaused",
+      args: [true],
+    });
   });
-  console.log(`[guardian] vault paused: ${pauseTx}`);
-  unlinkSync(KILL_FILE);
+  return ok;
 }
 
 async function main() {
@@ -162,8 +191,14 @@ async function main() {
   for (;;) {
     try {
       if (existsSync(KILL_FILE)) {
-        await kill(agent, operator);
-        console.log("[guardian] kill switch executed");
+        const done = await kill(agent, operator);
+        if (done) {
+          unlinkSync(KILL_FILE);
+          console.log("[guardian] kill switch executed — vault paused, both rails cut. Exiting; restart after review.");
+          process.exit(0);
+        }
+        // While KILL exists: no renewal, no mandates — nothing reopens.
+        continue;
       }
       await renewWindowIfNeeded(agent);
       await issueDueMandates(operator);

@@ -8,7 +8,7 @@
  * joined in and re-verified here; they annotate the chain record, never
  * replace it.
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   createPublicClient,
@@ -32,7 +32,8 @@ const RECEIPTS_FILE = join(ROOT, "dashboard", "receipts.json");
 
 export const EXPLORER = "https://explore.qore.network";
 const REST = process.env.QORE_REST_URL?.trim() || "https://api-testnet.qore.host";
-const LOG_CHUNK = 20_000n;
+// eth_getLogs on qorechain-diana rejects ranges above ~10k blocks.
+const LOG_CHUNK = 8_000n;
 
 const chain = defineChain({
   id: 9800,
@@ -133,7 +134,48 @@ const cache = {
   verified: new Map<string, boolean>(),
   cosmosTx: new Map<string, { height: number; ts: number } | null>(),
   nativeTx: new Map<string, string | null>(),
+  seeded: false,
 };
+
+// A committed snapshot seeds the scan so a cold start reads only the delta.
+// `pnpm snapshot` regenerates it; the local server rewrites it as it runs.
+const SNAPSHOT_FILE = join(ROOT, "dashboard", "chain-snapshot.json");
+const bigSer = (_k: string, v: any) => (typeof v === "bigint" ? { $bigint: String(v) } : v);
+const bigRev = (_k: string, v: any) => (v && typeof v === "object" && "$bigint" in v ? BigInt(v.$bigint) : v);
+
+function seedFromSnapshot() {
+  if (cache.seeded) return;
+  cache.seeded = true;
+  if (!existsSync(SNAPSHOT_FILE)) return;
+  try {
+    const s = JSON.parse(readFileSync(SNAPSHOT_FILE, "utf8"), bigRev);
+    cache.deployBlock ??= BigInt(s.deployBlock);
+    cache.scannedTo = BigInt(s.scannedTo);
+    cache.logs.push(...s.logs);
+    for (const [b, t] of Object.entries(s.blockTs ?? {})) cache.blockTs.set(BigInt(b), t as number);
+  } catch {
+    // corrupt snapshot — scan from scratch
+  }
+}
+
+export function writeSnapshot() {
+  try {
+    writeFileSync(
+      SNAPSHOT_FILE,
+      JSON.stringify(
+        {
+          deployBlock: String(cache.deployBlock ?? 0n),
+          scannedTo: String(cache.scannedTo),
+          blockTs: Object.fromEntries([...cache.blockTs].map(([b, t]) => [b.toString(), t])),
+          logs: cache.logs,
+        },
+        bigSer,
+      ),
+    );
+  } catch {
+    // read-only fs (serverless) — snapshot stays whatever was committed
+  }
+}
 
 // EVM txs ride inside MsgEthereumTx wrappers; the explorer indexes only the
 // native wrapper hash. Map via the wrapper's ethereum_tx.ethereumTxHash event,
@@ -204,6 +246,7 @@ function syncLogs(head: bigint) {
 
 async function scanLogs(head: bigint) {
   await deployBlock();
+  seedFromSnapshot();
   for (let from = cache.scannedTo + 1n; from <= head; from += LOG_CHUNK) {
     const to = from + LOG_CHUNK - 1n > head ? head : from + LOG_CHUNK - 1n;
     const raw = await client.getLogs({ address: [VAULT, REGISTRY], fromBlock: from, toBlock: to });
