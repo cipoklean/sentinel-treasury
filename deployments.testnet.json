@@ -4,8 +4,8 @@
   "operator": {
     "evm": "0x9488BAD757ab796638f5Ad4ae5d8bE333AE77e6C",
     "cosmos": "qor1jjyt446h4dukvw84449wtk97xvawwlnvqa327s",
-    "pqcRegisterTx": "6092B826",
-    "evmWindowTx": "46E5304D"
+    "pqcRegisterTx": "6092B82690A6A90E5D068235D86BBB754663A06C7B6E9B4692D065F805463448",
+    "evmWindowTx": "46E5304D57136602D4E266B515373C6193370E88181A842FECF3DDC7A8A75E8D"
   },
   "agent": {
     "evm": "0xBBCDb4F24461E7b73a344d2ff365Fb32080331a8",
