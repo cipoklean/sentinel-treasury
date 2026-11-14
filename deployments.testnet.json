@@ -69,12 +69,12 @@
     }
   },
   "proofTxs": {
-    "agentPaidInvoice1": "0x7bdd0aadd4e0485f59bd289ba7c0f0525c646655781790000cbbb07d9ae9e212",
-    "agentRefusedInvoice3_overPerTxCap": "0x7ac3b2622e365471726365857e766fa65013c4b218edd75ea9d191829e703c73",
+    "agentPaidInvoice1": "E0A7906BFF391308D770BE4E6621FF0EBBEF1C0F9A6E508824AB7DF6EC7274F1",
+    "agentRefusedInvoice3_overPerTxCap": "5CE9CEC057D7D87E4AC0D5EFFF02570A88EDB3D1A3C79F5846315788F7EB1819",
     "agentOutOfScopeTransfer_chainRejected": "rejected at broadcast: window does not list recipient as allowed target",
-    "agentRefusedInvoice2_mandateRequired": "0xbaee26ec6e71b0ced3987042aea205bed4c7b590ec209a98c71397a1848c9817",
-    "agentRefusedInvoice3_secondRefusal": "0xdaf06715c1751b7ae65c737100d09f18787c5e0a55469861c59bb10859b3c5a5",
-    "payWithMandate_pqcVerified_invoice2": "0xf8b9e372ac5ea069565a5bc021e85dc14e4b00f5347b43350b9c039e662b1567",
+    "agentRefusedInvoice2_mandateRequired": "A99BED8A64CFCB536250F0FDF50E3B5875410A152A6E4FE39471898BE5F3846A",
+    "agentRefusedInvoice3_secondRefusal": "DE0EC0E7827C8E0FFA2E56A6CEA02E649573CBBFF6109C70AE997247EFD368D3",
+    "payWithMandate_pqcVerified_invoice2": "A0FC79640C5D7C4A950C8EFBBB054BBDD12A5F488C4280E178530F1EB546378F",
     "aaAuthenticatorLink": "14FE8A997D24CB0AD43D5E8F7FADC5071D29DBE2317249C73EC88DDB5D777733",
     "aaExecutedPay_invoice4": "E380CE11957A5388269789E9F34DE3EE254B5E7E76BB1F6C506CA28B57F912E1",
     "aaRefusedCall_outsideAllowedEvmCalls": "34B98142040121032A9AF63EFE15109731BC01E4B881880306FCB3AE53552DB9",
@@ -83,9 +83,9 @@
     "vendorFunded": "4FD1D354D03AA20E450437E2DFCE12A0D8938942AE868B2A6A3E64BC5972699B",
     "vendorPqcRegistered": "2F5F853CB24DA1AA04ACB9F82ED48E0666B95256AD747EEFC2A5F7BA3C1B0798",
     "vendorWindowScoped": "E7AE893AD4332E4ABD5268B3059B99BAB7F016F4B1BDA4302BDFB5246A46ED1A",
-    "vendorAllowlisted": "0x6fd297de9d778aebd59a971389a6548124da9c72ec3d0ac53a208342879ffda1",
-    "vendorSubmittedInvoice6": "0x7b3f7561c96c1822cea71b74fa9e2c33d8efb8e5859160ef8ec25417efb9293d",
-    "agentPaidInvoice6_thirdPartyVendor": "0xb5ed71557dec54dfd6f2a447e2b6ec8c50e02a831ef3e328d7eea67878a9b8ef"
+    "vendorAllowlisted": "7A5A314A205F582EDEA5131849C001F2D62A75C3E7F9C972D30E7A8037623BE1",
+    "vendorSubmittedInvoice6": "E41CEB724472F4EB928C7B59BA6CDFA2F9B54A2BC147D45D7A15001986113833",
+    "agentPaidInvoice6_thirdPartyVendor": "1F6E11824F8D99A1BC88EDB9BC7F7582E9DB8FB4E0578D8A35BA48B29D040A02"
   },
   "abstractAccount": {
     "account": "qor1jjyt446h4dukvw84449wtk97xvawwlnvqa327s",
@@ -117,5 +117,15 @@
     "evm": "0x7E9826b333564C9b1DEE260C9C69E103833b524e",
     "cosmos": "qor106vzdven2exfk80wycxfc60pqwpnk5jwtp8v0p",
     "note": "independent demo vendor: own ML-DSA-87 key, window scoped to registry only, submits invoices as msg.sender"
+  },
+  "evmTxs": {
+    "agentPaidInvoice1": "0x7bdd0aadd4e0485f59bd289ba7c0f0525c646655781790000cbbb07d9ae9e212",
+    "agentRefusedInvoice3_overPerTxCap": "0x7ac3b2622e365471726365857e766fa65013c4b218edd75ea9d191829e703c73",
+    "agentRefusedInvoice2_mandateRequired": "0xbaee26ec6e71b0ced3987042aea205bed4c7b590ec209a98c71397a1848c9817",
+    "agentRefusedInvoice3_secondRefusal": "0xdaf06715c1751b7ae65c737100d09f18787c5e0a55469861c59bb10859b3c5a5",
+    "payWithMandate_pqcVerified_invoice2": "0xf8b9e372ac5ea069565a5bc021e85dc14e4b00f5347b43350b9c039e662b1567",
+    "vendorAllowlisted": "0x6fd297de9d778aebd59a971389a6548124da9c72ec3d0ac53a208342879ffda1",
+    "vendorSubmittedInvoice6": "0x7b3f7561c96c1822cea71b74fa9e2c33d8efb8e5859160ef8ec25417efb9293d",
+    "agentPaidInvoice6_thirdPartyVendor": "0xb5ed71557dec54dfd6f2a447e2b6ec8c50e02a831ef3e328d7eea67878a9b8ef"
   }
 }

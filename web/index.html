@@ -119,8 +119,8 @@
       <div class="sec-head reveal">
         <p class="sec-num"><b>02</b> / Bounds</p>
         <div>
-          <h2>Four layers. <em>Four different enforcers</em></h2>
-          <p class="lede">Each ring is checked by different code at a different point in a transaction's life. Hover a layer to find it in the diagram.</p>
+          <h2>Three enforcers. <em>Two doors, one vault</em></h2>
+          <p class="lede">The window and the spending rule are parallel doors into the same vault, not layers inside each other — each bounds what the key can do through its own rail. The vault alone bounds what actually gets paid. Hover a bound to find it in the diagram.</p>
         </div>
       </div>
       <div class="layers-grid">
@@ -136,21 +136,21 @@
           <article class="layer reveal" data-layer="l0">
             <div class="layer-top"><span class="lvl">L0</span><span class="tag hot">consensus</span></div>
             <h3>Scoped EVM window</h3>
-            <p>The agent's EOA can only broadcast EVM transactions inside a window opened by a hybrid-signed native tx. The window names its allowed targets; anything else is rejected at broadcast, with no contract code involved.</p>
-            <div class="params"><span>allowed_targets = [vault, registry]</span><span>17,280 blocks</span><span>max 20 txs</span><span>max 4 QOR</span></div>
+            <p>The agent's EOA can only broadcast EVM transactions inside a window opened by a hybrid-signed native tx. The window names its allowed targets; anything else is rejected at broadcast, with no contract code involved. Its budget covers the key's own tx value and gas — payouts are the vault's business.</p>
+            <div class="params"><span>allowed_targets = [vault, registry]</span><span>17,280 blocks</span><span>max 20 txs</span><span>4 QOR tx-value + gas budget</span></div>
             <p class="ev">open tx · <a class="txlink" href="https://explore.qore.network/tx/A6293E8A882E295054A751E7E21C3A3475FFBA6C3FD2FDDEEF026D4D3753655F" target="_blank" rel="noopener">A6293E8A…655F</a></p>
           </article>
           <article class="layer reveal" data-layer="l1">
             <div class="layer-top"><span class="lvl">L1</span><span class="tag hot">x/abstractaccount</span></div>
             <h3>Abstract-account spending rules</h3>
-            <p>The agent key is also linked as an authenticator on the operator's abstract account, with an EVM permission and a protocol-level spending rule. It's a second allowlist with its own budgets, kept by a different module.</p>
-            <div class="params"><span>rule sentinel-agent-evm</span><span>allowed_evm_calls = [vault]</span><span>1 QOR / tx</span><span>5 QOR / day</span><span>expires in 7 days</span></div>
-            <p class="ev">link tx · <a class="txlink" href="https://explore.qore.network/tx/14FE8A997D24CB0AD43D5E8F7FADC5071D29DBE2317249C73EC88DDB5D777733" target="_blank" rel="noopener">14FE8A99…7733</a></p>
+            <p>The agent key is also linked as an authenticator on the operator's abstract account — calls authorized by it execute <b>as the operator</b>. The spending rule therefore lists calls down to the function selector: <code>pay</code> and <code>payWithMandate</code> only. A bare <code>allowed_evm_calls = [vault]</code> would trust every admin function.</p>
+            <div class="params"><span>rule sentinel-agent-evm</span><span>calls = vault/pay + payWithMandate</span><span>1 QOR / tx</span><span>5 QOR / day</span><span>expires in 7 days</span></div>
+            <p class="ev">link tx · <a class="txlink" href="https://explore.qore.network/tx/14FE8A997D24CB0AD43D5E8F7FADC5071D29DBE2317249C73EC88DDB5D777733" target="_blank" rel="noopener">14FE8A99…7733</a> · re-scoped <a class="txlink" href="https://explore.qore.network/tx/F1F3F4A3B15AE4917EE5AE9792780D0183B62CCBE856A4F2A8F7C4A11EF6E9AA" target="_blank" rel="noopener">F1F3F4A3…E9AA</a></p>
           </article>
           <article class="layer reveal" data-layer="l2">
             <div class="layer-top"><span class="lvl">L2</span><span class="tag hot">solidity + PQC precompiles</span></div>
             <h3>PolicyVault</h3>
-            <p>Holds the treasury and re-checks every payment no matter what the agent decided: pause, vendor allowlist, per-tx cap, rolling daily cap. Above the threshold it needs an operator ML-DSA-87 mandate verified by <code>pqcVerify</code> (0x0A01). Admin calls re-check <code>pqcKeyStatus</code> (0x0A02). Refusals are emitted on-chain.</p>
+            <p>Holds the treasury and re-checks every payment no matter what the agent decided: pause, vendor allowlist, per-tx cap, UTC-day cap. This is the layer that actually bounds payout amounts. Above the threshold it needs an operator ML-DSA-87 mandate verified by <code>pqcVerify</code> (0x0A01). Admin calls re-check <code>pqcKeyStatus</code> (0x0A02). Refusals are emitted on-chain.</p>
             <div class="params"><span>per-tx 5 QOR</span><span>daily 20 QOR</span><span>mandate &gt; 2 QOR</span><span>vendor allowlist</span><span>pause</span></div>
             <p class="ev">contract · <a class="txlink" href="https://explore.qore.network/address/qor1rq3pknvq9d80excmgzvm4wfusqlv95wfw249kk" target="_blank" rel="noopener">qor1rq3p…49kk</a></p>
           </article>
@@ -178,7 +178,7 @@
       </div>
       <div class="actors reveal">
         <div class="actor">
-          <p class="role">Operator · cold</p>
+          <p class="role">Operator · guardian-held</p>
           <h3>Owner</h3>
           <p class="key">ML-DSA-87 + ECDSA, hybrid-signed</p>
           <ul>
@@ -191,11 +191,11 @@
         <div class="actor">
           <p class="role">Guardian · warm</p>
           <h3>Supervisor</h3>
-          <p class="key">holds the agent's PQC recovery code</p>
+          <p class="key">holds the operator key + the agent's PQC recovery code</p>
           <ul>
             <li>Renews the agent's scoped window when it runs low</li>
             <li>Auto-issues mandates within an approval ceiling</li>
-            <li>Kill switch: closes the window, pauses the vault</li>
+            <li>Kill switch: revokes the authenticator, closes the window, pauses the vault</li>
             <li class="no">Decides what to pay</li>
           </ul>
         </div>
@@ -208,7 +208,8 @@
             <li class="yes">Calls <code style="background:var(--board-3);border-color:var(--board-line);color:var(--board-ink)">pay</code> on the vault</li>
             <li class="no">Open or widen its own window</li>
             <li class="no">Sign a mandate</li>
-            <li class="no">Call any other contract</li>
+            <li class="no">Reach a non-allowlisted contract — through either rail</li>
+            <li class="no">Call any vault function but pay via the account</li>
           </ul>
         </div>
       </div>
@@ -288,6 +289,32 @@
         <div><h2>Accounts and contracts</h2></div>
       </div>
       <div class="addr-grid reveal" id="addrs"></div>
+    </div>
+  </section>
+
+  <!-- known limits -->
+  <section class="sec" id="limits">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="sec-num"><b>08</b> / Known limits</p>
+        <div>
+          <h2>What this does <em>not</em> claim</h2>
+          <p class="lede">Edges a reviewer should find written down, not discover.</p>
+        </div>
+      </div>
+      <div class="premise reveal">
+        <table class="ptab">
+          <thead><tr><th scope="col">Edge</th><th scope="col">Reality</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Daily cap</th><td>Fixed UTC-day bucket, not rolling — the cap can be spent twice across a midnight boundary.</td></tr>
+            <tr><th scope="row">Registry settle</th><td><code>InvoiceRegistry.settle</code> is operator-callable directly; the vault never marks an invoice <code>Rejected</code>.</td></tr>
+            <tr><th scope="row">decisionRef</th><td>Stored, not validated — the vault accepts any 32 bytes. <code>PaymentRefused</code> carries none.</td></tr>
+            <tr><th scope="row">Invoice spam</th><td>Submission is permissionless; every refusal costs the window one of its 20 txs.</td></tr>
+            <tr><th scope="row">Operator key</th><td>Warm in the guardian process, not cold — guardian compromise = owner compromise.</td></tr>
+            <tr><th scope="row">PQC tests</th><td><code>vm.etch</code> mocks verify control flow; ML-DSA-87 interop is proven by the live precompile txs.</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 

@@ -9,23 +9,32 @@ requirement.
 
 **AI (Devin):**
 
-- Architecture: designed the three-layer enforcement model (scoped EVM
-  window + PolicyVault + guardian-issued ML-DSA-87 mandates) from the Track A
-  rubric and the QoreChain protocol surface.
+- Architecture: designed the enforcement model (scoped EVM window +
+  abstract-account spending rule + PolicyVault + guardian-issued
+  ML-DSA-87 mandates) from the Track A rubric and the QoreChain protocol
+  surface — two parallel protocol doors into one contract-enforced vault.
 - Contracts: wrote `src/PolicyVault.sol`, `src/InvoiceRegistry.sol`,
   `src/interfaces/IQorePQC.sol`, and the Foundry test suite including the
   `vm.etch` PQC precompile mocks.
-- Services: wrote the agent loop (`agent/`: scan -> decide -> EIP-712 receipt
-  -> pay) and the guardian (`guardian/`: window renewal, ML-DSA mandate
-  issuance, kill switch).
+- Services: wrote the agent loop (`agent/`: scan -> decide -> LLM review ->
+  EIP-712 receipt -> pay), the veto-only DeepSeek reviewer (`agent/llm.ts`),
+  and the guardian (`guardian/`: window renewal, ML-DSA mandate issuance,
+  kill switch with authenticator revocation).
 - Tooling: `scripts/window.ts` scoped-window extension, `scripts/send.ts`
-  native-lane funding helper, deployment via `forge create` (chosen after
-  discovering Foundry's local simulation lacks QoreChain's native
-  precompiles).
+  native-lane funding helper, `scripts/aa.ts` abstract-account rail
+  (link / selector-scope / revoke), `scripts/ops.ts` env-keyed contract ops,
+  deployment via `forge create` (chosen after discovering Foundry's local
+  simulation lacks QoreChain's native precompiles).
+- Site: `web/` landing + `/dashboard` live board rebuilt from on-chain
+  event logs, explorer-native tx/address link resolution (`0x` →
+  `MsgEthereumTx` wrapper hashes, `0x` → `qor1` bech32), snapshot fallback
+  so the API stays up when the RPC is slow.
 - On-chain operations: account generation, PQ key registration, scoped
-  window opens, contract deployment, seed invoices, and the end-to-end
-  payment/refusal/mandate proof transactions recorded in
-  `deployments.testnet.json`.
+  window opens, contract deployment, seed invoices, a third-party vendor
+  flow (own PQ key + registry-scoped window + invoice submitted as itself),
+  the selector-scope hardening with an out-of-selector `withdraw` refusal,
+  and the end-to-end payment/refusal/mandate proof transactions recorded
+  in `deployments.testnet.json`.
 
 **Human:**
 
