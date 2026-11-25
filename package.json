@@ -14,6 +14,8 @@
     "agent": "tsx --env-file=.env.agent.hot agent/index.ts",
     "guardian": "tsx --env-file=.env guardian/index.ts",
     "aa": "tsx scripts/aa.ts",
+    "rotate-agent": "tsx scripts/rotate-agent.ts",
+    "drill-evidence": "tsx scripts/drill-evidence.ts",
     "dashboard": "tsx dashboard/serve.ts",
     "receipts:export": "tsx scripts/export-receipts.ts",
     "snapshot": "tsx scripts/snapshot.ts",

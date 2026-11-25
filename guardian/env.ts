@@ -29,12 +29,22 @@ const root = join(import.meta.dirname, "..");
 export const operatorAccount = () => accountFromEnv(join(root, ".env"));
 export const agentAccount = () => accountFromEnv(join(root, ".env.agent"));
 
-export const GUARDIAN_POLL_MS = Number(process.env.GUARDIAN_POLL_MS ?? 60_000);
+function envNumber(name: string, fallback: number): number {
+  const value = process.env[name]?.trim();
+  return value ? Number(value) : fallback;
+}
+
+function envBigInt(name: string, fallback: string): bigint {
+  const value = process.env[name]?.trim();
+  return BigInt(value || fallback);
+}
+
+export const GUARDIAN_POLL_MS = envNumber("GUARDIAN_POLL_MS", 60_000);
 /** Reopen when fewer than this many blocks or txs remain. */
-export const RENEW_BLOCKS = BigInt(process.env.GUARDIAN_RENEW_BLOCKS ?? "2000");
-export const RENEW_TXS = BigInt(process.env.GUARDIAN_RENEW_TXS ?? "4");
+export const RENEW_BLOCKS = envBigInt("GUARDIAN_RENEW_BLOCKS", "2000");
+export const RENEW_TXS = envBigInt("GUARDIAN_RENEW_TXS", "4");
 /** Auto-issue mandates up to this amount; larger ones need human approval. */
-export const MANDATE_AUTO_MAX_WEI = BigInt(process.env.GUARDIAN_MANDATE_AUTO_MAX_WEI ?? "4000000000000000000");
-export const MANDATE_TTL_SECS = Number(process.env.GUARDIAN_MANDATE_TTL_SECS ?? 3600);
+export const MANDATE_AUTO_MAX_WEI = envBigInt("GUARDIAN_MANDATE_AUTO_MAX_WEI", "4000000000000000000");
+export const MANDATE_TTL_SECS = envNumber("GUARDIAN_MANDATE_TTL_SECS", 3600);
 export const KILL_FILE = join(root, "logs", "KILL");
 export const MANDATES_DIR = join(root, "logs", "mandates");

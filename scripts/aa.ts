@@ -104,11 +104,43 @@ async function status() {
   console.log(JSON.stringify({ account: operator.cosmos, auths, rules }, (_, v) => (typeof v === "bigint" ? v.toString() : v), 2));
 }
 
+function ruleInput(rule: any) {
+  return {
+    id: String(rule.id),
+    perTxLimit: String(rule.perTxLimit ?? rule.per_tx_limit ?? "0"),
+    dailyLimit: String(rule.dailyLimit ?? rule.daily_limit ?? "0"),
+    allowedDenoms: rule.allowedDenoms ?? rule.allowed_denoms ?? [],
+    enabled: Boolean(rule.enabled),
+    allowedEvmCalls: rule.allowedEvmCalls ?? rule.allowed_evm_calls ?? [],
+    denomLimits: rule.denomLimits ?? rule.denom_limits ?? [],
+  };
+}
+
 async function link() {
   // Possession proof: the agent's EIP-191 personal_sign over the link message.
   const linkMsg = authenticatorLinkMessage(net.chainId, operator.cosmos, "secp256k1", agentAddrBytes);
   const proofHex = await agentEth.signMessage({ message: linkMsg });
   const possessionProof = hexToBytes(proofHex);
+
+  const agentRule = {
+    id: "sentinel-agent-evm",
+    // Bounds the operator account's own outflow when this key authorizes it.
+    // The vault-internal caps are a separate contract layer.
+    perTxLimit: "1000000",
+    dailyLimit: "5000000",
+    allowedDenoms: [],
+    enabled: true,
+    // Selector-scoped: pay/payWithMandate only. A bare address would trust
+    // every function — including operator-only withdraw/setPolicy — since
+    // the call executes as the operator.
+    allowedEvmCalls: SELECTOR_SCOPED_CALLS,
+    denomLimits: [],
+  };
+  // MsgUpdateSpendingRules replaces the account-wide rule set wholesale, so
+  // keep unrelated rules instead of silently dropping them.
+  const preservedRules = (await fetchSpendingRules({ rest: REST, address: operator.cosmos })).rules
+    .filter((rule) => rule.id !== agentRule.id)
+    .map(ruleInput);
 
   const expiryUnix = Math.floor(Date.now() / 1000) + 7 * 86_400;
   const msgs = linkAuthenticatorMsgs({
@@ -121,20 +153,7 @@ async function link() {
     expiryUnix,
     label: "sentinel-agent",
     possessionProof,
-    spendingRule: {
-      id: "sentinel-agent-evm",
-      // Bounds the operator account's own outflow when this key authorizes it.
-      // The vault-internal caps are a separate contract layer.
-      perTxLimit: "1000000",
-      dailyLimit: "5000000",
-      allowedDenoms: [],
-      enabled: true,
-      // Selector-scoped: pay/payWithMandate only. A bare address would trust
-      // every function — including operator-only withdraw/setPolicy — since
-      // the call executes as the operator.
-      allowedEvmCalls: SELECTOR_SCOPED_CALLS,
-      denomLimits: [],
-    },
+    spendingRules: [agentRule, ...preservedRules],
   });
   console.log(`linking ${agentEth.address} -> ${operator.cosmos}`);
   console.log(`linked: ${await broadcast(operator, msgs)}`);

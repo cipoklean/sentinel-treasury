@@ -156,7 +156,8 @@ async function open(): Promise<void> {
   // window for `maxTxs` transactions of up to 3,000,000 gas at a 250 gwei fee cap
   // (tools commonly set the cap near twice the 100 gwei base fee).
   const perTx = evmWindowCost({ gas: 3_000_000n, maxFeePerGas: 250_000_000_000n });
-  const maxValue = BigInt(process.env.QORE_WINDOW_MAX_UQOR ?? (perTx * maxTxs).toString());
+  const maxValueOverride = process.env.QORE_WINDOW_MAX_UQOR?.trim();
+  const maxValue = BigInt(maxValueOverride || (perTx * maxTxs).toString());
   // QORE_WINDOW_TARGETS="0x...,0x..." scopes the window to calls on those
   // contracts only; contract creation and everything else is refused.
   const allowedTargets = (process.env.QORE_WINDOW_TARGETS ?? "")

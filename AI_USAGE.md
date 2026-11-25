@@ -35,6 +35,10 @@ requirement.
   the selector-scope hardening with an out-of-selector `withdraw` refusal,
   and the end-to-end payment/refusal/mandate proof transactions recorded
   in `deployments.testnet.json`.
+- Post-drill hardening and submission support: `scripts/rotate-agent.ts`
+  rotation tooling, operator `set-agent` support, env reproducibility fixes,
+  the drill evidence review, threat model, video script, rotation runbook and
+  submission checklist under `docs/`.
 
 **Human:**
 

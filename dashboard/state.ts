@@ -46,6 +46,11 @@ const client = createPublicClient({ chain, transport: http(undefined, { retryCou
 const VAULT = deployments.contracts.PolicyVault.address as Hex;
 const REGISTRY = deployments.contracts.InvoiceRegistry.address as Hex;
 const AGENT = deployments.agent.evm as Hex;
+const KNOWN_AGENT_KEYS = new Set(
+  [deployments.agent.evm, ...((deployments.previousAgents ?? []).map((a: any) => a.evm))]
+    .filter(Boolean)
+    .map((a: string) => a.toLowerCase()),
+);
 
 const REGISTRY_ABI = parseAbi([
   "function nextId() view returns (uint256)",
@@ -286,9 +291,9 @@ async function verifyReceipt(r: StoredReceipt) {
     const m = r.receipt.message;
     ok =
       keccak256(r.receipt.signature) === r.decisionRef &&
-      r.receipt.signer.toLowerCase() === AGENT.toLowerCase() &&
+      KNOWN_AGENT_KEYS.has(r.receipt.signer.toLowerCase()) &&
       (await verifyTypedData({
-        address: AGENT,
+        address: r.receipt.signer,
         domain: r.receipt.domain,
         types: DECISION_TYPES,
         primaryType: "Decision",
@@ -540,6 +545,7 @@ export async function getState() {
     ts: new Date().toISOString(),
     network: { name: "qorechain-diana", evmChainId: 9800, head: Number(head), headTs: Number(headBlock.timestamp) },
     agent: { evm: AGENT, cosmos: deployments.agent.cosmos },
+    previousAgents: deployments.previousAgents ?? [],
     operator: { evm: deployments.operator.evm, cosmos: deployments.operator.cosmos },
     contracts: { vault: VAULT, registry: REGISTRY },
     window: window?.found

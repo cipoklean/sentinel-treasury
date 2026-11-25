@@ -88,8 +88,11 @@ the guardian), cannot call outside the two scoped contracts through its own
 EOA, and through the abstract-account rail it executes as the operator only
 inside `pay` / `payWithMandate` — a `withdraw` to the attacker's address is
 protocol-refused (`AC46FFC7…`). Payout amounts are bounded by the vault's
-own caps regardless. After the drill the key is rotated:
-`setAgent` → new scoped window → re-linked authenticator.
+own caps regardless. After the drill the key must be rotated:
+`setAgent` → new scoped window → re-linked authenticator. The honest drill
+evidence review lives in [docs/QDAY_DRILL.md](docs/QDAY_DRILL.md), the rotation
+runbook in [docs/ROTATION.md](docs/ROTATION.md), and the attack/residual-risk
+model in [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md).
 
 ## Known limits
 
@@ -117,7 +120,10 @@ test/             16 Foundry tests incl. vm.etch PQC precompile mocks
 agent/            the autonomous agent (decision engine, EIP-712 receipts)
 guardian/         window renewal, ML-DSA mandate issuance, kill switch
 scripts/          window.ts (register/status/open), aa.ts (AA rail), send.ts,
-                  ops.ts (generic env-keyed contract ops), snapshot.ts
+                  ops.ts (generic env-keyed contract ops), rotate-agent.ts,
+                  drill-evidence.ts, snapshot.ts
+docs/             rotation runbook, Q-Day drill review, threat model,
+                  video script, submission checklist
 deployments.testnet.json   every address + tx hash
 AI_USAGE.md       AI-Native award documentation
 ```
@@ -136,10 +142,15 @@ pnpm window:agent status
 pnpm agent                       # the loop: scan → decide → receipt → pay
 
 # guardian                      (needs both .env and .env.agent)
-npx tsx guardian/index.ts        # renews window, issues mandates, kill switch
+pnpm guardian                    # renews window, issues mandates, kill switch
+
+# post-drill rotation           (needs .env + .env.agent + .env.agent.next)
+pnpm rotate-agent plan
+pnpm rotate-agent status
+# execution details: docs/ROTATION.md
 
 # abstract account rail
-npx tsx scripts/aa.ts status|link|pay <id>|exec <to> <data>
+pnpm aa status                   # or: npx tsx scripts/aa.ts link|pay <id>|exec <to> <data>
 
 # website: landing page + live board   (read-only, needs no keys)
 pnpm dashboard                   # http://localhost:8787  (board: /dashboard)
@@ -176,7 +187,8 @@ in-memory EVM lacks QoreChain's native precompiles. Deploy with
 - [x] agent + guardian loops running end-to-end incl. PQ mandate arc
 - [x] drill account registered (agent key + both contracts)
 - [x] LLM veto layer (DeepSeek via Sandbase) + live dashboard
-- [ ] drill-day replay, QCAI hardening, video
+- [x] drill evidence review, threat model and rotation runbook documented
+- [ ] post-rotation live payment/refusal/mandate evidence, QCAI hardening, video
 
 ## License
 

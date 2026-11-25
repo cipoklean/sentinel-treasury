@@ -98,7 +98,8 @@
       "perTxLimitUqor": 1000000,
       "dailyLimitUqor": 5000000,
       "allowedEvmCalls": [
-        "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9"
+        "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9/0x8e6bee97",
+        "0x18221b4d802b4Efc9B1B4099bab93c803ec2D1C9/0xcc444de3"
       ]
     },
     "expiryDays": 7

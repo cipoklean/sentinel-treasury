@@ -258,8 +258,8 @@
 
       <div class="drill-meta reveal">
         <div><p class="k">Drill day</p><p class="countdown" id="countdown">18 Nov</p><p>The attack bot gets the agent's ECDSA private key.</p></div>
-        <div><p class="k">What it holds</p><p>The agent's ECDSA key: valid signatures, a funded EOA, a live scoped window. It does not hold the PQ key, the operator account or the guardian.</p></div>
-        <div><p class="k">After the drill</p><p>Rotate: <code style="background:var(--board-3);border-color:var(--board-line);color:var(--board-ink)">setAgent</code> → new scoped window → re-linked authenticator. The old key is left with nothing.</p></div>
+        <div><p class="k">What it holds</p><p>The agent's ECDSA key: valid signatures, a funded EOA and the account-rail authenticator. The original scoped window had expired before drill day — see the <a href="https://github.com/cipoklean/sentinel-treasury/blob/main/docs/QDAY_DRILL.md" target="_blank" rel="noopener">honest evidence review</a>. It does not hold the PQ key, the operator account or the guardian.</p></div>
+        <div><p class="k">After the drill</p><p>Rotation path: <code style="background:var(--board-3);border-color:var(--board-line);color:var(--board-ink)">setAgent</code> → new scoped window → re-linked authenticator. The old key is not reused.</p></div>
       </div>
     </div>
   </section>
@@ -310,6 +310,7 @@
             <tr><th scope="row">Registry settle</th><td><code>InvoiceRegistry.settle</code> is operator-callable directly; the vault never marks an invoice <code>Rejected</code>.</td></tr>
             <tr><th scope="row">decisionRef</th><td>Stored, not validated — the vault accepts any 32 bytes. <code>PaymentRefused</code> carries none.</td></tr>
             <tr><th scope="row">Invoice spam</th><td>Submission is permissionless; every refusal costs the window one of its 20 txs.</td></tr>
+            <tr><th scope="row">Drill liveness</th><td>The first scoped window expired on 14 Nov, before the 18 Nov drill. Sentinel therefore cannot claim a live window blocked drill-day attacks; the evidence review distinguishes pre-drill proofs from drill-day liveness.</td></tr>
             <tr><th scope="row">Operator key</th><td>Warm in the guardian process, not cold — guardian compromise = owner compromise.</td></tr>
             <tr><th scope="row">PQC tests</th><td><code>vm.etch</code> mocks verify control flow; ML-DSA-87 interop is proven by the live precompile txs.</td></tr>
           </tbody>
